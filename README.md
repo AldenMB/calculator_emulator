@@ -1,5 +1,5 @@
 # calculator_emulator
-A Javasdcript simulacrum of a TI-30Xa.
+A Javascript simulacrum of a TI-30Xa.
 
 [See the calculator in action!](https://aldenmb.github.io/calculator_emulator/)
 
@@ -14,11 +14,11 @@ This project is far from done! additional tasks include:
  - Make the keys react visually when pressed.
  - Use CSS to align everything nice and use good colors.
 
-## making it functional
+## making it functional - implement these:
 
- - implement alternate display modes
- - implement constant key
- - implement statistical register
- - implement memory
- - implement polar/cartesian conversion, and angle formats
- - implement fractions
+ - alternate display modes
+ - constant key
+ - statistical register
+ - memory
+ - polar/cartesian conversion, and angle formats
+ - fractions
