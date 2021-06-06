@@ -1,7 +1,6 @@
 import {TI30Xa,} from './modules/TI30Xa.js';
 import {to_button_coords, button_at} from './modules/button_parse.js';
 import {run_all_tests,} from './tests/test.js';
-import {SegmentDisplay} from './modules/segment-display.js';
 
 
 function add_hover_coords(picture, display){

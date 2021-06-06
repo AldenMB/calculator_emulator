@@ -40,3 +40,37 @@ const SEGMENT_ENCODE = deepFreeze({
 	'"':{'a':false, 'b': true, 'c':false, 'd':false, 'e':false, 'f': true, 'g':false},
 	'n':{'a':false, 'b':false, 'c': true, 'd':false, 'e': true, 'f':false, 'g': true},
 });
+
+function set_visibility(object, value=true){
+	const visibility = value ? 'visible' : 'hidden';
+	object.setAttribute('visibility', visibility);
+}
+
+function make_sign_digit(segments){
+	function set_showing(character){
+		if(character === '-' || character === ' '){
+			set_visibility(segments.g, character === '-');
+		} else {
+			throw('tried to write '+character+' to sign digit.');
+		}
+	}
+	
+	return Object.freeze({set_showing});
+}
+
+function make_digit(segments){
+	function set_showing(character){
+		const encoding = SEGMENT_ENCODE[character];
+		for(const segment of 'abcdefg'){
+			set_visibility(segments[segment], encoding[segment]);
+		}
+	}
+	
+	function set_dp(value){
+		set_visibility(segments.dp, value);
+	}
+	
+	return Object.freeze({set_showing, set_dp});
+}
+
+export {make_digit, make_sign_digit, set_visibility};
