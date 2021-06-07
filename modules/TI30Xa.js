@@ -190,7 +190,7 @@ function TI30Xa_state(changes){
 		// TODO: handle floating and scientific formats, confirm against tests
 		const negative = number < 0 ? '-' : '';
 		number = Math.abs(number);
-		if(number === 0){
+		if(number <= 1e-100){
 			return '0.'
 		}
 		const exponent = Math.floor(Math.log10(number));
@@ -760,8 +760,9 @@ function TI30Xa_state(changes){
 	};
 	
 	function catch_errors(){
-		let stack = state.stack.map(normalize_errors);
-		let error = (state.error || stack.includes(NaN));
+		const stack = state.stack.map(normalize_errors);
+		const overflow = Math.abs(top_number()) >= 1e100;
+		const error = (state.error || stack.includes(NaN) || overflow);
 		return child({error, stack});
 	};
 };
