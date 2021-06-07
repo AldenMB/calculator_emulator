@@ -316,6 +316,10 @@ const TESTS = Object.freeze([
 	name: "underflow computed achieves true zero",
 	sequence: "ON/C 1 EE 9 9 +- / 1 0 = LN",
 	check: is_error,
+},{
+	name: "combinatorials reject floats",
+	sequence: "ON/C 7 1/x nCr 2 =",
+	check: is_error,
 }
 ]);
 

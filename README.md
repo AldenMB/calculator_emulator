@@ -8,7 +8,6 @@ This project is far from done! additional tasks include:
 
 ## making it pretty
 
- - Show an alert of some sort when a not-implemented key is pressed.
  - Display the history pretty, using images of the keys.
  - Make the keys react visually when pressed.
  - Use CSS to align everything nice and use good colors.

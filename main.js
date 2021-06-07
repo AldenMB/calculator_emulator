@@ -71,8 +71,16 @@ window.onload = function() {
 		const x = (e.clientX - rect.left)/rect.width;
 		const y = (e.clientY - rect.top)/rect.height;
 		const button_label = button_at({x, y});
-		calculator.press(button_label);
-		show_history();
+		try {
+			calculator.press(button_label);
+			show_history();
+		} catch(e){
+			if(e.error === 'not implemented'){
+				document.getElementById('error_field').innerHTML = `Button ${e.button} not yet implemented!`;
+			} else {
+				throw e;
+			}
+		}
 	};
 	
 	const undo = document.getElementById("undo");

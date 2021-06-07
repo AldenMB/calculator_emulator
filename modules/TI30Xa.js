@@ -583,7 +583,10 @@ function TI30Xa_state(changes){
 			//case "F<>D":
 			
 			default:
-				console.log(`button ${label} is not yet implemented`);
+				throw {
+					error: 'not implemented',
+					button: label,
+				};
 		};
 		if(!['2nd', 'HYP'].includes(label)){
 			next_state = next_state.child({second:false, hyperbolic:false});
