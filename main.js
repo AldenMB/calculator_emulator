@@ -1,6 +1,7 @@
 import {TI30Xa,} from './modules/TI30Xa.js';
 import {to_button_coords, button_at} from './modules/button_parse.js';
 import {run_all_tests,} from './tests/test.js';
+import {make_display,} from './modules/seven_segment.js';
 
 
 function add_hover_coords(picture, display){
@@ -28,9 +29,38 @@ window.onload = function() {
 	const calculator = TI30Xa();
 	const calc_history = document.getElementById("calc_history");
 	const calc_state = document.getElementById("calc_state");
+	
+	function get_segments(digit, exponent){
+		const segments = {}
+		const exponent_prefix = exponent ? 'E' : '';
+		const segment_list = (
+			(digit === 10 || (exponent && digit===2))
+			?
+			['g']
+			:
+			'a b c d e f g dp'.split(' ')
+		);
+		for(const segment of segment_list){
+			segments[segment] = document.getElementById('segment'+exponent_prefix+digit+segment.toUpperCase());
+		}
+		return segments
+	}
+	
+	const mantissa_list = [...Array(11).keys()].reverse().map(x => get_segments(x, false));
+	
+	const exponent_list = [2, 1, 0].map(x => get_segments(x, true));
+	
+	const indicators = {};
+	for(let indicator of ['M1', 'M2', 'M3', '2nd', 'HYP', 'SCI', 'ENG', 'FIX', 'STAT', 'DE', 'G', 'RAD', 'X', 'R', '()', 'K']){
+		indicators[indicator] = document.getElementById(indicator);
+	}
+	
+	const display = make_display({indicators, mantissa_list, exponent_list});
+	
 	function show_history(){
 		calc_history.innerHTML = calculator.to_html();
 		calc_state.innerHTML = calculator.current_html();
+		display.update(calculator.now());
 	};
 	show_history();
 	
@@ -48,4 +78,5 @@ window.onload = function() {
 		calculator.undo();
 		show_history();
 	};
+	
 }

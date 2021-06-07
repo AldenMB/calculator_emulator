@@ -28,6 +28,13 @@ function normalize_errors(num){
 	return num;
 };
 
+function clear_trailing_zeros(str){
+	while(str.slice(-1) === '0'){
+		str = str.slice(0, -1);
+	}
+	return str;
+};
+
 function factorial(x){
 	if(x<0){
 		return NaN;
@@ -155,6 +162,8 @@ function TI30Xa_state(changes){
 		equals,
 		includes_parens,
 		close_paren,
+		shown_number,
+		from_radians,
 	};
 	
 	const state = Object.assign({}, DEFAULT_STATE, changes, public_methods);
@@ -174,7 +183,28 @@ function TI30Xa_state(changes){
 		if(state.error){
 			return 'Error';
 		};
-		return state.entry || top_number();
+		if(state.entry){
+			return state.entry;
+		}
+		let number = top_number();
+		// TODO: handle floating and scientific formats, confirm against tests
+		const negative = number < 0 ? '-' : '';
+		number = Math.abs(number);
+		if(number === 0){
+			return '0.'
+		}
+		const exponent = Math.floor(Math.log10(number));
+		const scientific = (number < 0.00_000_000_1) || (number > 9_999_999_999);
+		if(scientific){
+			const mantissa = number * 10**(-exponent);
+			const mantissa_str = clear_trailing_zeros(mantissa.toFixed(9));
+			return negative + mantissa_str + 'e' + exponent;
+		}
+		if(!String(number).includes('.')){
+			return negative+String(number);
+		}
+		const precision = (exponent>1) ? 10-exponent : 9;
+		return negative + clear_trailing_zeros(number.toFixed(precision));
 	};
 	
 	function includes_parens(){
@@ -192,10 +222,10 @@ function TI30Xa_state(changes){
 	
 	function enter_digit(digit){
 		let {entry} = state;
-		if(entry.includes('E')){
+		if(entry.includes('e')){
 			return enter_exponent(digit);
 		}
-		if(entry.split('E')[0].replace('.','').length >= 10){
+		if(entry.split('e')[0].replace('.','').length >= 10){
 			return state;
 		}
 		entry += digit;
@@ -207,7 +237,7 @@ function TI30Xa_state(changes){
 	
 	function enter_exponent(digit){
 		const {entry:previous} = state;
-		let [mantissa, exponent] = previous.split('E');
+		let [mantissa, exponent] = previous.split('e');
 		exponent += digit;
 		if(exponent.length > 3 && exponent.includes('-')){
 			exponent = '-'+exponent.slice(-2);
@@ -215,22 +245,22 @@ function TI30Xa_state(changes){
 		if(exponent.length > 2 && !exponent.includes('-')){
 			exponent = exponent.slice(-2);
 		}
-		const entry = mantissa+'E'+exponent;
+		const entry = mantissa+'e'+exponent;
 		return state.child({entry});
 	};
 	
 	function begin_exponent(){
 		let {entry} = state;
-		if(entry.includes('E') || entry === ''){
+		if(entry.includes('e') || entry === ''){
 			return state;
 		};
-		entry = entry + 'E00';
+		entry = entry + 'e00';
 		return state.child({entry});
 	}
 	
 	function enter_decimal(){
 		let {entry} = state;
-		if(entry.includes('E') || entry.includes('.')){
+		if(entry.includes('e') || entry.includes('.')){
 			return state;
 		};
 		if(entry === ''){
@@ -242,7 +272,7 @@ function TI30Xa_state(changes){
 	
 	function backspace(){
 		let {entry} = state;
-		if(entry === '' || entry.includes('E')){
+		if(entry === '' || entry.includes('e')){
 			return state;
 		}
 		if((entry.length === 2 && entry[0] === '-') || entry.length === 1){
@@ -256,14 +286,14 @@ function TI30Xa_state(changes){
 	function sign_flip(){
 		let {entry} = state;
 		if(entry){
-			if(entry.includes('E')){
-				let [mantissa, exponent] = entry.split('E');
+			if(entry.includes('e')){
+				let [mantissa, exponent] = entry.split('e');
 				if(exponent[0] === '-'){
 					exponent = exponent.slice(1);
 				} else {
 					exponent = '-' + exponent;
 				}
-				entry = mantissa+'E'+exponent;
+				entry = mantissa+'e'+exponent;
 			} else {
 				entry = '-' + entry;
 				if(entry[1] === '-'){

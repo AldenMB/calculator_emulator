@@ -97,6 +97,10 @@ const TESTS = Object.freeze([
 	sequence: "ON/C 1 2 3 4 5 6 7 8 9 0 1 2 3",
 	check: entry_is("1234567890"),
 },{
+	name: "allow leading - sign",
+	sequence: "ON/C 1 +- 2 3 4 5 6 7 8 9 0",
+	check: entry_is("-1234567890"),
+},{
 	name: "enter inside decimal",
 	sequence: "ON/C 4 1 2 2 . 4 3",
 	check: entry_is('4122.43'),
@@ -111,15 +115,15 @@ const TESTS = Object.freeze([
 },{
 	name: "simple exponent entry",
 	sequence: "ON/C 5 EE 2 7",
-	check: entry_is("5E27"),
+	check: entry_is("5e27"),
 },{
 	name: "two digit exponent",
 	sequence: "ON/C 1 EE",
-	check: entry_is("1E00"),
+	check: entry_is("1e00"),
 },{
 	name: "exponent entry shifting",
 	sequence: "ON/C 2 7 EE 1 2 3 4 5 6 7",
-	check: entry_is("27E67"),
+	check: entry_is("27e67"),
 },{
 	name: "basic backspacing",
 	sequence: "ON/C 1 2 3 4 5 <- <-",
@@ -135,7 +139,7 @@ const TESTS = Object.freeze([
 },{
 	name: "backspace rejects exponent",
 	sequence: "ON/C 1 2 EE 1 4 <-",
-	check: entry_is("12E14"),
+	check: entry_is("12e14"),
 },{
 	name: "basic sign flip",
 	sequence: "ON/C 1 2 3 +-",
@@ -151,7 +155,7 @@ const TESTS = Object.freeze([
 },{
 	name: "negative exponent",
 	sequence: "ON/C 1 2 3 EE +-",
-	check: entry_is("123E-00"),
+	check: entry_is("123e-00"),
 },{
 	name: "flip stack sign",
 	sequence: "ON/C 1 2 3 = +-",
@@ -284,6 +288,10 @@ const TESTS = Object.freeze([
 	name: "close parenthesis behaves like equals",
 	sequence: "ON/C 3 + 2 )",
 	check: stack_is([5]),
+},{
+	name: "overflow",
+	sequence: "ON/C 1 EE 9 9 * 1 0 =",
+	check: is_error,
 }
 ]);
 

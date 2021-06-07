@@ -41,6 +41,8 @@ const SEGMENT_ENCODE = deepFreeze({
 	'n':{'a':false, 'b':false, 'c': true, 'd':false, 'e': true, 'f':false, 'g': true},
 });
 
+const BOOLEAN_INDICATORS = Object.freeze(['M1', 'M2', 'M3', '2nd', 'HYP', 'FIX', 'STAT', 'X', 'R', '()', 'K']);
+
 function set_visibility(object, value=true){
 	const visibility = value ? 'visible' : 'hidden';
 	object.setAttribute('visibility', visibility);
@@ -58,7 +60,10 @@ function make_sign_digit(segments){
 	return Object.freeze({set_showing});
 }
 
-function make_digit(segments){
+function make_digit(segments, index){
+	if(index === 0){
+		return make_sign_digit(segments);
+	}
 	function set_showing(character){
 		const encoding = SEGMENT_ENCODE[character];
 		for(const segment of 'abcdefg'){
@@ -73,4 +78,102 @@ function make_digit(segments){
 	return Object.freeze({set_showing, set_dp});
 }
 
-export {make_digit, make_sign_digit, set_visibility};
+function make_display({indicators, mantissa_list, exponent_list}){
+	const mantissa = mantissa_list.map((x,i) => make_digit(x, i));
+	const exponent = exponent_list.map((x,i) => make_digit(x, i));
+	const display = {
+		set format(fmt){
+			if(!['SCI', 'ENG', 'FLO'].includes(fmt)){
+				throw('attempted to set display format to '+fmt);
+			}
+			set_visibility(indicators.SCI, fmt === 'SCI');
+			set_visibility(indicators.ENG, fmt === 'ENG');
+		},
+		set angle(fmt){
+			if(!['RAD', 'DEG', 'GRAD', ''].includes(fmt)){
+				throw('attempted to set angle format to '+fmt)
+			}
+			set_visibility(indicators.DE, fmt === 'DEG');
+			set_visibility(indicators.G, fmt === 'DEG' || fmt === 'GRAD');
+			set_visibility(indicators.RAD, fmt === 'GRAD' || fmt === 'RAD');
+		},
+		set mantissa(str){
+			const negative = str.includes('-') ? '-' : ' ';
+			const has_dp = str.includes('.');
+			str = str.replace('-', '');
+			const dp = 11+str.indexOf('.')-str.length;
+			str = str.replace('.', '');
+			str = negative + str;
+			str = str.padStart(11, ' ');
+			for(let i=0; i<11; ++i){
+				mantissa[i].set_showing(str[i]);
+			}
+			for(let i=1; i<11; ++i){
+				mantissa[i].set_dp(false);
+			}
+			if(has_dp){
+				mantissa[dp].set_dp(true);
+			}			
+		},
+		set exponent(str){
+			if(str.replace(' ', '') === ''){
+				for(const digit of exponent){
+					digit.set_showing(' ');
+				}
+			} else {
+				const negative = str.includes('-') ? '-' : ' ';
+				str = negative + str.replace('-', '').padStart(2, '0');
+				for(let i=0; i<=2; ++i){
+					exponent[i].set_showing(str[i]);
+				}
+			}
+		},
+	};
+	for(const indicator of BOOLEAN_INDICATORS){
+		Object.defineProperty(display, indicator, {
+			set: function(value){
+				set_visibility(indicators[indicator], value); 
+				}
+		});
+	}
+	
+	display.update = function update(calculator_state){	
+		// TODO: show memory, fix, stat, x, r, k
+		
+		let displayed = calculator_state.shown_number();
+		
+		if(displayed === 'blank'){
+			for(const indicator of BOOLEAN_INDICATORS){
+				display[indicator] = false;
+			}
+			display.angle = '';
+			display.format = 'FLO';
+			display.mantissa = '';
+			display.exponent = '';
+			return;
+		}
+		display['2nd'] = calculator_state.second;
+		display['()'] = calculator_state.stack.includes('(');
+		display.HYP = calculator_state.hyperbolic;
+		display.angle = calculator_state.anglemode;
+		
+		if(displayed === "Error"){
+			display.exponent = '';
+			display.mantissa = 'Error  ';
+			return;
+		}
+		if(!displayed.includes('e')){
+			display.exponent = '';
+			display.mantissa = displayed;
+		} else {
+			// depending on the sign of the exponent, the e could end up in either part
+			display.exponent = displayed.slice(-3).replace('e', '');
+			display.mantissa = displayed.slice(0,-3).replace('e', '');
+		}
+		return
+	}
+	
+	return Object.freeze(display);
+}
+
+export {make_display};
