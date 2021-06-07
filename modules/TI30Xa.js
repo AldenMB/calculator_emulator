@@ -203,7 +203,7 @@ function TI30Xa_state(changes){
 		if(!String(number).includes('.')){
 			return negative+String(number);
 		}
-		const precision = (exponent>1) ? 10-exponent : 9;
+		const precision = (exponent>0) ? 9-exponent : 9;
 		return negative + clear_trailing_zeros(number.toFixed(precision));
 	};
 	

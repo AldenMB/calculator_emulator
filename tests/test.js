@@ -79,6 +79,18 @@ function is_not_error(calc){
 	return success;
 };
 
+function display_is(str){
+	function displayed_matches(calc){
+		const actual_display = calc.now().shown_number();
+		const success = actual_display === str;
+		if(!success){
+			console.log(`expected display string ${JSON.stringify(str)}, but got ${JSON.stringify(actual_display)}`);
+		}
+		return success
+	}
+	return displayed_matches
+};
+
 const TESTS = Object.freeze([
 {
 	name: "enter simple digits",
@@ -292,6 +304,10 @@ const TESTS = Object.freeze([
 	name: "overflow",
 	sequence: "ON/C 1 EE 9 9 * 1 0 =",
 	check: is_error,
+},{
+	name: "rounding and truncation",
+	sequence: "ON/C 4 5 6 sqrt",
+	check: display_is("21.3541565"),
 }
 ]);
 
