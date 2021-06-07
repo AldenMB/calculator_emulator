@@ -308,6 +308,14 @@ const TESTS = Object.freeze([
 	name: "rounding and truncation",
 	sequence: "ON/C 4 5 6 sqrt",
 	check: display_is("21.3541565"),
+},{
+	name: "underflow entry achieves true zero",
+	sequence: "ON/C . 1 EE 9 9 +- LN",
+	check: is_error,
+},{
+	name: "underflow computed achieves true zero",
+	sequence: "ON/C 1 EE 9 9 +- / 1 0 = LN",
+	check: is_error,
 }
 ]);
 

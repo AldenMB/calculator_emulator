@@ -349,6 +349,9 @@ function TI30Xa_state(changes){
 		if(typeof(top) === 'number'){
 			stack.pop();
 		};
+		if(Math.abs(number) <= 1e-100){
+			number = 0;
+		}
 		stack.push(number);
 		return child({stack});
 	};
@@ -760,7 +763,14 @@ function TI30Xa_state(changes){
 	};
 	
 	function catch_errors(){
-		const stack = state.stack.map(normalize_errors);
+		const stack = state.stack
+			.map(normalize_errors)
+			.map(function(x){
+				if(typeof(x) === 'number' && Math.abs(x)<= 1e-100){
+					return 0;
+				}
+				return x;
+		});
 		const overflow = Math.abs(top_number()) >= 1e100;
 		const error = (state.error || stack.includes(NaN) || overflow);
 		return child({error, stack});
