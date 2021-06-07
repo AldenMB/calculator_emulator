@@ -225,7 +225,7 @@ function TI30Xa_state(changes){
 		if(entry.includes('e')){
 			return enter_exponent(digit);
 		}
-		if(entry.split('e')[0].replace('.','').length >= 10){
+		if(entry.split('e')[0].replace('.','').replace('-','').length >= 10){
 			return state;
 		}
 		entry += digit;
