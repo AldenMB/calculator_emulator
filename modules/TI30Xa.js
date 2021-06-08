@@ -35,8 +35,16 @@ function clear_trailing_zeros(str){
 	return str;
 };
 
+function is_integer(number){
+	const remainder = number % 1;
+	return remainder <= 1e-14*number;
+};
+
 function factorial(x){
 	if(x<0){
+		return NaN;
+	};
+	if(!is_integer(x)){
 		return NaN;
 	};
 	if(x === 0){
@@ -46,7 +54,7 @@ function factorial(x){
 };
 
 function permutation(n, r){
-	if(r < 0 || n < 0){
+	if(r < 0 || n < 0 || !is_integer(r) || !is_integer(n)){
 		return NaN;
 	};
 	if(r > n){
@@ -60,7 +68,7 @@ function permutation(n, r){
 };
 
 function combination(n, r){
-	if(r < 0 || n < 0){
+	if(r < 0 || n < 0 || !is_integer(r) || !is_integer(n)){
 		return NaN;
 	};
 	if(r > n){
@@ -190,7 +198,7 @@ function TI30Xa_state(changes){
 		// TODO: handle floating and scientific formats, confirm against tests
 		const negative = number < 0 ? '-' : '';
 		number = Math.abs(number);
-		if(number <= 1e-100){
+		if(number < 1e-99){
 			return '0.'
 		}
 		const exponent = Math.floor(Math.log10(number));
@@ -349,7 +357,7 @@ function TI30Xa_state(changes){
 		if(typeof(top) === 'number'){
 			stack.pop();
 		};
-		if(Math.abs(number) <= 1e-100){
+		if(Math.abs(number) < 1e-99){
 			number = 0;
 		}
 		stack.push(number);
@@ -769,7 +777,7 @@ function TI30Xa_state(changes){
 		const stack = state.stack
 			.map(normalize_errors)
 			.map(function(x){
-				if(typeof(x) === 'number' && Math.abs(x)<= 1e-100){
+				if(typeof(x) === 'number' && Math.abs(x)< 1e-99){
 					return 0;
 				}
 				return x;

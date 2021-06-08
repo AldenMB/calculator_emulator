@@ -320,6 +320,18 @@ const TESTS = Object.freeze([
 	name: "combinatorials reject floats",
 	sequence: "ON/C 7 1/x nCr 2 =",
 	check: is_error,
+},{
+	name: "combinatorials accept near integers",
+	sequence: "ON/C 1 EE 1 4 +- + 5 = nPr 2 =",
+	check: is_not_error,
+},{
+	name: "combinatorials reject near floats",
+	sequence: "ON/C 1 EE 1 3 +- + 5 = nPr 2 =",
+	check: is_error,
+},{
+	name: "decimals show when numbers entered",
+	sequence: "ON/C 5 =",
+	check: display_is("5."),
 }
 ]);
 
