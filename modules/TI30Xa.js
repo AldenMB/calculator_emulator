@@ -209,7 +209,7 @@ function TI30Xa_state(changes){
 			return negative + mantissa_str + 'e' + exponent;
 		}
 		if(!String(number).includes('.')){
-			return negative+String(number);
+			return negative+String(number)+'.';
 		}
 		const precision = (exponent>0) ? 9-exponent : 9;
 		return negative + clear_trailing_zeros(number.toFixed(precision));
