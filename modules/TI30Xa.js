@@ -788,7 +788,7 @@ function TI30Xa_state(changes){
 	};
 	
 	function trig_overflow_protect(x){
-		if(Math.abs(to_radians(x))*180/Math.pi >= 1e10){
+		if(Math.abs(to_radians(x))*180/Math.PI >= 1e10){
 			return NaN;
 		}
 		return x;
