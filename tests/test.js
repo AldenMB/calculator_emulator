@@ -334,7 +334,7 @@ const TESTS = Object.freeze([
 	check: display_is("5."),
 },{
 	name: "trig functions reject large numbers",
-	sequence: "ON/C DRG 1 EE 1 0 SIN",
+	sequence: "ON/C 1 EE 1 0 SIN",
 	check: is_error,
 },{
 	name: "trig functions accept not-too-large numbers",
