@@ -332,6 +332,22 @@ const TESTS = Object.freeze([
 	name: "decimals show when numbers entered",
 	sequence: "ON/C 5 =",
 	check: display_is("5."),
+},{
+	name: "trig functions reject large numbers",
+	sequence: "ON/C DRG 1 EE 1 0 SIN",
+	check: is_error,
+},{
+	name: "trig functions accept not-too-large numbers",
+	sequence: "ON/C 9 . 9 EE 9 SIN",
+	check: is_not_error,
+},{
+	name: "trig functions reject large numbers in radians",
+	sequence: "ON/C DRG 1 . 7 5 EE 8 SIN",
+	check: is_error,
+},{
+	name: "trig functions accept not-too-large numbers in radians",
+	sequence: "ON/C DRG 1 . 7 4 EE 8 SIN",
+	check: is_not_error,
 }
 ]);
 

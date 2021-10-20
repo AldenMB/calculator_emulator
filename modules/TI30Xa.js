@@ -469,13 +469,13 @@ function TI30Xa_state(changes){
 				next_state = apply_pure_function(Math.log10);
 				break;
 			case "SIN":
-				next_state = apply_pure_function(x => Math.sin(to_radians(x)));
+				next_state = apply_pure_function(x => Math.sin(to_radians(trig_overflow_protect(x))));
 				break;
 			case "COS":
-				next_state = apply_pure_function(x => Math.cos(to_radians(x)));
+				next_state = apply_pure_function(x => Math.cos(to_radians(trig_overflow_protect(x))));
 				break;
 			case "TAN":
-				next_state = apply_pure_function(x => Math.tan(to_radians(x)));
+				next_state = apply_pure_function(x => Math.tan(to_radians(trig_overflow_protect(x))));
 				break;
 			case "ASIN":
 				next_state = apply_pure_function(x => from_radians(Math.asin(x)));
@@ -785,6 +785,13 @@ function TI30Xa_state(changes){
 		const overflow = Math.abs(top_number()) >= 1e100;
 		const error = (state.error || stack.includes(NaN) || overflow);
 		return child({error, stack});
+	};
+	
+	function trig_overflow_protect(x){
+		if(Math.abs(to_radians(x))*180/Math.pi >= 1e10){
+			return NaN;
+		}
+		return x;
 	};
 };
 
