@@ -360,7 +360,7 @@ const TESTS = Object.freeze([
 	check: is_not_error,
 },{
 	name: "eleven rounding error",
-	sequence: "ON/C 1 1 / 2 ^ 2 0 + 1 - 1 = * 2 ^ 2 0 - 1 1 =",
+	sequence: "ON/C 1 1 / 2 y^x 2 0 + 1 - 1 = * 2 y^x 2 0 - 1 1 =",
 	check: number_on_stack_is(0.000_000_02),
 }
 ]);
