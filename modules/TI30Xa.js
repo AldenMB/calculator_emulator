@@ -142,7 +142,7 @@ function is_binary_op(op){
 };
 
 const DEFAULT_STATE = Object.freeze({
-	stack: [0],
+	stack: Object.freeze([0]),
 	entry: '',
 	error: false,
 	second: false,
