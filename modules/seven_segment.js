@@ -1,4 +1,4 @@
-// courtesy of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
+// deepFreeze function courtesy of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 function deepFreeze(object) {
   // Retrieve the property names defined on object
   const propNames = Object.getOwnPropertyNames(object);
@@ -79,8 +79,8 @@ function make_digit(segments, index){
 }
 
 function make_display({indicators, mantissa_list, exponent_list}){
-	const mantissa = mantissa_list.map((x,i) => make_digit(x, i));
-	const exponent = exponent_list.map((x,i) => make_digit(x, i));
+	const mantissa = mantissa_list.map(make_digit);
+	const exponent = exponent_list.map(make_digit);
 	const display = {
 		set format(fmt){
 			if(!['SCI', 'ENG', 'FLO'].includes(fmt)){
@@ -105,27 +105,19 @@ function make_display({indicators, mantissa_list, exponent_list}){
 			str = str.replace('.', '');
 			str = negative + str;
 			str = str.padStart(11, ' ');
-			for(let i=0; i<11; ++i){
-				mantissa[i].set_showing(str[i]);
-			}
-			for(let i=1; i<11; ++i){
-				mantissa[i].set_dp(false);
-			}
+			mantissa.forEach((m, i) => m.set_showing(str[i]));
+			mantissa.slice(1).forEach(m => m.set_dp(false));
 			if(has_dp){
 				mantissa[dp].set_dp(true);
 			}			
 		},
 		set exponent(str){
 			if(str.replace(' ', '') === ''){
-				for(const digit of exponent){
-					digit.set_showing(' ');
-				}
+				exponent.forEach(d => d.set_showing(' '));
 			} else {
 				const negative = str.includes('-') ? '-' : ' ';
 				str = negative + str.replace('-', '').padStart(2, '0');
-				for(let i=0; i<=2; ++i){
-					exponent[i].set_showing(str[i]);
-				}
+				exponent.forEach((d, i) => d.set_showing(str[i]));
 			}
 		},
 	};
