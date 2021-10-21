@@ -351,9 +351,14 @@ const TESTS = Object.freeze([
 	sequence: "ON/C DRG 1 . 7 4 EE 8 SIN",
 	check: is_not_error,
 },{
-	name: "integers not represented exactly",
-	sequence: "ON/C 1 / 9 5 8 5 = * 9 5 8 5 = 2nd 3",
+	name: "ternary fractions not represented exactly",
+	sequence: "ON/C 1 / 3 * 3 = 2nd 3",
 	check: is_error,
+}
+},{
+	name: "decimal fractions represented exactly",
+	sequence: "ON/C 1 / 5 * 5 = 2nd 3",
+	check: is_not_error,
 }
 ]);
 
