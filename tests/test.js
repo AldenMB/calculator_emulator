@@ -14,10 +14,12 @@ function test_case(test, verbose){
 		if(verbose){
 		console.log(`passed test ${name}`);
 		};
+		return 1;
 	} else {
 		console.log(`TEST ${name} FAILED`);
 		console.log(test);
 		console.log(calculator);
+		return 0;
 	};
 }
 
@@ -352,7 +354,11 @@ const TESTS = Object.freeze([
 ]);
 
 function run_all_tests(verbose=false){
-	TESTS.forEach(test => test_case(test, verbose));
+	const pass_count = (TESTS
+		.map(test => test_case(test, verbose))
+		.reduce((a,b)=>a+b)
+	);
+	console.log(`passed ${pass_count} tests, failed ${TESTS.length-pass_count}.`);
 };
 
 export {run_all_tests};
