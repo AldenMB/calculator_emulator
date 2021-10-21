@@ -358,6 +358,10 @@ const TESTS = Object.freeze([
 	name: "decimal fractions represented exactly",
 	sequence: "ON/C 1 / 5 * 5 = 2nd 3",
 	check: is_not_error,
+},{
+	name: "eleven rounding error",
+	sequence: "ON/C 1 1 / 2 ^ 2 0 + 1 - 1 = * 2 ^ 2 0 - 1 1 =",
+	check: number_on_stack_is(0.000_000_02),
 }
 ]);
 
