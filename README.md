@@ -18,7 +18,6 @@ This project is far from done! additional tasks include:
 
  - Display the history pretty, using images of the keys.
  - Make the keys react visually when pressed.
- - Get the favicon to display correctly.
 
 ## making it functional - implement these:
 
