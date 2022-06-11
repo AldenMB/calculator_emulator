@@ -1,18 +1,14 @@
 body {
 	background-color: #55595c;
+	font-family: system-ui;
 }
 
 #wrapper {
 	background-color: white;
-	max-width: 400px;
+	max-width: 600px;
 	margin: auto;
 	border-radius: 30px;
 	padding: 20px;
-}
-
-.centered {
-	display: block;
-	margin: auto;
 }
 
 #calculator_picture {
@@ -21,4 +17,11 @@ body {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+	display: block;
+	margin: auto;
+}
+
+#url {
+	text-align: center;
+	font-weight: bold;
 }
