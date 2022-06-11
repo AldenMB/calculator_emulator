@@ -661,10 +661,10 @@ function TI30Xa_state(changes){
 				if(binary_op_precedence(op1) >= binary_op_precedence(op2)){
 					const stack = state.stack.slice(0,-4);
 					stack.push(apply_binary_op(a, op1, b), op2);
-					return child({stack});
+					return child({stack}).reduce_binary_op();
 				} else {
 					return state;
-				};				
+				};		
 			};
 		};
 		
