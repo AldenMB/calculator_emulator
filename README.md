@@ -18,9 +18,7 @@ This project is far from done! additional tasks include:
 
  - Display the history pretty, using images of the keys.
  - Make the keys react visually when pressed.
- - Use CSS to align everything nice and use good colors.
  - Get the favicon to display correctly.
- - Hide the debug info
 
 ## making it functional - implement these:
 
