@@ -9,8 +9,14 @@ function close(a, b){
 function run_test(test){
 	const {sequence, check, name='anonymous'} = test;
 	const calculator = TI30Xa();
-	sequence.split(' ').forEach(calculator.press);
-	const {success, reason} = check(calculator);
+	let success, reason;
+	try {
+		sequence.split(' ').forEach(calculator.press);
+		({success, reason} = check(calculator));
+	} catch(error) {
+		success = false;
+		reason = `error ${JSON.stringify(error)} arose during test`;
+	}
 	return {success, reason, test, calculator};
 }
 
