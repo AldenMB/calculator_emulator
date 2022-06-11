@@ -1,0 +1,16 @@
+body {
+	background-color: #55595c;
+}
+
+#wrapper {
+	background-color: white;
+	max-width: 400px;
+	margin: auto;
+	border-radius: 30px;
+	padding: 20px;
+}
+
+.centered {
+	display: block;
+	margin: auto;
+}

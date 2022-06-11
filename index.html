@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8"/>
 <title>TI-30Xa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" type="text/css" href="style.css"/>
 <script type = "module" src="./main.js"></script>
 </head>
 
 <body>
+<div id="wrapper">
 
-<table><tr>
-<td>
-<svg height="600" width="315.6" xmlns="http://www.w3.org/2000/svg" id="calculator_picture">
+<svg height="600" width="315.6" xmlns="http://www.w3.org/2000/svg" id="calculator_picture" class="centered">
 <image href="ti-30Xa.jpg" height="100%" width="100%"/>
-
 <svg
    xmlns="http://www.w3.org/2000/svg"
    x="52" y="107.5" width="214" height="53"
@@ -680,11 +680,25 @@
     </g>
   </g>
 </svg>
-
 </svg>
-</td>
 
-<td>
+
+
+
+<h1>About this page</h1>
+<p>
+This page is dedicated to my favorite handheld calculator, the TI-30Xa. I made it to serve several purposes:
+<ul>
+<li> To practice my test-driven development. A suite of tests have already run by the time your browser loads this page. These allow me to refactor my code with confidence and debug quickly.
+<li> To see if I really understand how my calculator works. I have already learned a few things, such as the limited order-of-operations the 30Xa has. Also, this may seem obvious, but I also realized for the first time that the display segments are at a five degree angle. Here is another intersting fact: if there are no open parentheses, the close-parenthesis button does the same thing as the equals key. Another amusing fact: while promotional materials display the more common 3-segment "7", the calculator itself shows the less-common 4-segment version.
+<li> So I can demonstrate using this calculator in class without the glare which comes from using the document camera, and students can follow along on their smartphones if they left their calculator at home. In particular, this could fill a similar role to TI-SmartView, which as of right now is not available for the 30Xa.
+</ul>
+</p>
+
+<p>
+<h1>Internal state</h1>
+Below is a view onto what's going on inside the calculator. This is very helpful for debugging. 
+
 <div id="error_field" style="color:red"></div>
 <pre id="hover_coords"></pre>
 <pre id="calc_state">
@@ -692,30 +706,13 @@ current calculator state.
 </pre>
 <button id="undo">UNDO</button>
 <pre id="calc_history" hidden></pre>
-</td>
-
-</tr></table>
-
-
-<p>
-This page is dedicated to my favorite handlheld calculator, the TI-30Xa. I made it to serve several purposes:
-</p>
-<ul>
-<li> To practice my test-driven development. A suite of tests have already run by the time your browser loads this page. These allow me to refactor my code with confidence and debug quickly.
-<li> To see if I really understand how my calculator works. I have already learned a few things, such as the limited order-of-operations the 30Xa has. Also, this may seem obvious, but I also realized for the first time that the display segments are at a five degree angle. Here is another intersting fact: if there are no open parentheses, the close-parenthesis button does the same thing as the equals key. Another amusing fact: while promotional materials display the more common 3-segment "7", the calculator itself shows the less-common 4-segment version.
-<li> So I can demonstrate using this calculator in class without the glare which comes from using the document camera, and students can follow along on their smartphones if they left their calculator at home. In particular, this could fill a similar role to TI-SmartView, which as of right now is not available for the 30Xa.
-</ul>
-<p>
-I also intend to include a feature for showing the button press history, probably with several modes (showing just the keys, showing the keys and display, showing additional information usually concealed to the user).
-</p>
-<p>
-I may have to leasrn some CSS for this, but I would also like this page to look nice.
 </p>
 
-
 <p>
-This web page was made by Alden Bradford circa January 29, 2021. May it help us all to know our calculators better.
+This is an ongoing project by <a href="https://aldenbradford.com/">Alden Bradford</a>, started circa January 29, 2021. For details on how it works as well as a roadmap for future features, see <a href="https://github.com/AldenMB/calculator_emulator">the associated Github repository</a>. May this tool help us all to know our calculators better.
 </p>
+
+</div>
 </body>
 
 </html>
