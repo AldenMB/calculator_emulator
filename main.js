@@ -21,7 +21,7 @@ x=${x}, y=${y}`);
 }
 
 window.onload = function() {
-	run_all_tests();
+	console.log(run_all_tests());
 	const keyboard = document.getElementById("calculator_picture");
 	const coord_display = document.getElementById("hover_coords");
 	add_hover_coords(keyboard, coord_display);

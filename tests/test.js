@@ -6,33 +6,20 @@ function close(a, b){
 	return Math.abs(a-b) <= 1E-8 + 1E-5 * Math.abs(b);
 }
 
-function test_case(test, verbose){
+function run_test(test){
 	const {sequence, check, name='anonymous'} = test;
 	const calculator = TI30Xa();
 	sequence.split(' ').forEach(calculator.press);
-	if(check(calculator)){
-		if(verbose){
-		console.log(`passed test ${name}`);
-		};
-		return 1;
-	} else {
-		console.log(`TEST ${name} FAILED`);
-		console.log(test);
-		console.log(calculator);
-		return 0;
-	};
+	const {success, reason} = check(calculator);
+	return {success, reason, test, calculator};
 }
 
 function entry_is(entry){
 	function are_equal(calc){
 		const actual_entry = calc.now().entry;
 		const success = actual_entry === entry;
-		if(!success){
-			console.log(
-			`expected entry ${JSON.stringify(entry)}, but found ${JSON.stringify(actual_entry)}:`
-			);
-		};
-		return success;
+		const reason = `expected entry ${JSON.stringify(entry)}, but found ${JSON.stringify(actual_entry)}`;
+		return {success, reason};
 	}		
 	return are_equal;
 };
@@ -41,12 +28,8 @@ function stack_is(stack){
 	function are_equal(calc){
 		const actual_stack = calc.now().stack;
 		const success = array_equal(stack, actual_stack);
-		if(!success){
-			console.log(
-			`expected stack ${JSON.stringify(stack)}, but got ${JSON.stringify(actual_stack)}:`
-			);
-		};
-		return success;
+		const reason = `expected stack ${JSON.stringify(stack)}, but got ${JSON.stringify(actual_stack)}`;
+		return {success, reason};
 	}
 	return are_equal;
 };
@@ -55,42 +38,32 @@ function number_on_stack_is(number){
 	function are_equal(calc){
 		const actual_number = calc.now().top_number();
 		const success = close(actual_number, number);
-		if(!success){
-			console.log(
-			`expected number ${JSON.stringify(number)}, but got ${JSON.stringify(actual_number)}:`
-			);
-		};
-		return success;
+		const reason = `expected number ${JSON.stringify(number)}, but got ${JSON.stringify(actual_number)}`;
+		return {success, reason};
 	};
 	return are_equal;
 };
 
 function is_error(calc){
 	const success = calc.now().error;
-	if(!success){
-		console.log('expected to be in an error state:');
-	};
-	return success;
+	const reason = 'expected to be in an error state';
+	return {success, reason};
 };
 
 function is_not_error(calc){
 	const success = !calc.now().error;
-	if(!success){
-		console.log('expected not to be in an error state:');
-	};
-	return success;
+	const reason = 'expected not to be in an error state';
+	return {success, reason};
 };
 
 function display_is(str){
 	function displayed_matches(calc){
 		const actual_display = calc.now().shown_number();
 		const success = actual_display === str;
-		if(!success){
-			console.log(`expected display string ${JSON.stringify(str)}, but got ${JSON.stringify(actual_display)}`);
-		}
-		return success
+		const reason = `expected display string ${JSON.stringify(str)}, but got ${JSON.stringify(actual_display)}`;
+		return {success, reason};
 	}
-	return displayed_matches
+	return displayed_matches;
 };
 
 const TESTS = Object.freeze([
@@ -362,15 +335,20 @@ const TESTS = Object.freeze([
 	name: "eleven rounding error",
 	sequence: "ON/C 1 1 / 2 y^x 2 0 + 1 - 1 = * 2 y^x 2 0 - 1 1 =",
 	check: number_on_stack_is(0.000_000_02),
+},{ 
+	name: "plus triggers division on stack",
+	sequence: "ON/C 1 0 0 / 2 y^x 2 +",
+	check: number_on_stack_is(25),
 }
 ]);
 
 function run_all_tests(verbose=false){
-	const pass_count = (TESTS
-		.map(test => test_case(test, verbose))
-		.reduce((a,b)=>a+b)
+	const failures = (TESTS
+		.map(test => run_test(test))
+		.filter(result => !result.success)
 	);
-	console.log(`passed ${pass_count} tests, failed ${TESTS.length-pass_count}.`);
+	const message = `passed ${TESTS.length - failures.length} tests, failed ${failures.length}.`
+	return {message, failures};
 };
 
 export {run_all_tests};
