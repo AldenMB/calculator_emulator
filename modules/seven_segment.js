@@ -148,6 +148,9 @@ function make_display({indicators, mantissa_list, exponent_list}){
 		display['()'] = calculator_state.stack.includes('(');
 		display.HYP = calculator_state.hyperbolic;
 		display.angle = calculator_state.anglemode;
+		display.M1 = calculator_state.memory[0] !== 0;
+		display.M2 = calculator_state.memory[1] !== 0;
+		display.M3 = calculator_state.memory[2] !== 0;
 		
 		if(displayed === "Error"){
 			display.exponent = '';
