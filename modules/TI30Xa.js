@@ -259,7 +259,7 @@ function TI30Xa_state(changes){
 		};
 		entry = entry + 'e00';
 		return state.child({entry});
-	}
+	};
 	
 	function enter_decimal(){
 		let {entry} = state;
