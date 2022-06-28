@@ -377,6 +377,26 @@ const TESTS = Object.freeze([
 	name: "store is dropped unless used",
 	sequence: "ON/C 6 STO 4 1",
 	check: display_is("41"),
+},{
+	name: "second does not overwrite store",
+	sequence: "ON/C 5 STO 2nd 2nd 1 ON/C RCL 1",
+	check: display_is("5."),
+},{
+	name: "recall overrides store",
+	sequence: "ON/C 5 STO 1 6 STO RCL 1",
+	check: display_is("5."),
+},{
+	name: "basic usage of SUM",
+	sequence: "ON/C 6 STO 1 8 2nd RCL 1 RCL 1",
+	check: display_is("14."),
+},{
+	name: "exchange retrieves value",
+	sequence: "ON/C 4 STO 1 5 2nd STO 1",
+	check: display_is("4."),
+},{
+	name: "exchange stores value",
+	sequence: "ON/C 4 STO 1 5 2ND STO 1 RCL 1",
+	check: display_is("5."),
 }
 ]);
 
