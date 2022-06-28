@@ -330,18 +330,6 @@ const TESTS = Object.freeze([
 	sequence: "ON/C DRG 1 . 7 4 EE 8 SIN",
 	check: is_not_error,
 },{
-	name: "ternary fractions not represented exactly",
-	sequence: "ON/C 1 / 3 * 3 = 2nd 3",
-	check: is_error,
-},{
-	name: "decimal fractions represented exactly",
-	sequence: "ON/C 1 / 5 * 5 = 2nd 3",
-	check: is_not_error,
-},{
-	name: "eleven rounding error",
-	sequence: "ON/C 1 1 / 2 y^x 2 0 + 1 - 1 = * 2 y^x 2 0 - 1 1 =",
-	check: number_on_stack_is(0.000_000_02),
-},{ 
 	name: "plus triggers division on stack",
 	sequence: "ON/C 1 0 0 / 2 y^x 2 +",
 	check: number_on_stack_is(25),
@@ -395,10 +383,31 @@ const TESTS = Object.freeze([
 	check: display_is("4."),
 },{
 	name: "exchange stores value",
-	sequence: "ON/C 4 STO 1 5 2ND STO 1 RCL 1",
+	sequence: "ON/C 4 STO 1 5 2nd STO 1 RCL 1",
 	check: display_is("5."),
+},{
+	name: "storing does not clear hyperbolic mode",
+	sequence: "ON/C 9 0 STO HYP 1 TAN", 
+	check: display_is("1."),
 }
 ]);
+
+
+//// floating point representation tests
+/*
+	name: "ternary fractions not represented exactly",
+	sequence: "ON/C 1 / 3 * 3 = 2nd 3",
+	check: is_error,
+},{
+	name: "decimal fractions represented exactly",
+	sequence: "ON/C 1 / 5 * 5 = 2nd 3",
+	check: is_not_error,
+},{
+	name: "eleven rounding error",
+	sequence: "ON/C 1 1 / 2 y^x 2 0 + 1 - 1 = * 2 y^x 2 0 - 1 1 =",
+	check: number_on_stack_is(0.000_000_02),
+},{ 
+*/
 
 function run_all_tests(verbose=false){
 	const failures = (TESTS

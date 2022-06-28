@@ -17,6 +17,13 @@ const ANGLE_MODES = Object.freeze({
 	grads: 'GRAD',
 });
 
+const MEMORY_KEYS = Object.freeze({
+	store: 'STO',
+	recall: 'RCL',
+	exchange: 'EXC',
+	sum: 'SUM',
+});
+
 function array_equal(arr1, arr2){
 	return arr1.every((elt, i) => elt === arr2[i]);
 };
@@ -144,6 +151,8 @@ function is_binary_op(op){
 const DEFAULT_STATE = Object.freeze({
 	stack: Object.freeze([0]),
 	entry: '',
+	memory: Object.freeze([0, 0, 0]),
+	memorymode: '',
 	error: false,
 	second: false,
 	hyperbolic: false,
@@ -174,7 +183,8 @@ function TI30Xa_state(changes){
 	};
 	
 	const state = Object.assign({}, DEFAULT_STATE, changes, public_methods);
-	state.stack = Object.freeze([...state.stack]);	
+	state.stack = Object.freeze([...state.stack]);
+	state.memory = Object.freeze([...state.memory]);	
 	return Object.freeze(state);
 	
 	////////////////////////////////
@@ -224,6 +234,9 @@ function TI30Xa_state(changes){
 	};
 	
 	function enter_digit(digit){
+		if (state.memorymode!=='' && ['1', '2', '3'].includes(digit)){
+			return apply_memory_function(digit);
+		}
 		let {entry} = state;
 		if(entry.includes('e')){
 			return enter_exponent(digit);
@@ -566,10 +579,12 @@ function TI30Xa_state(changes){
 			
 			// memory
 			
-			//case "EXC":
-			//case "RCL":
-			//case "STO":
-			//case "SUM":
+			case "EXC":
+			case "RCL":
+			case "STO":
+			case "SUM":
+				next_state = ensure_empty_entry().child({memorymode: label});
+				break;
 			
 			// angles
 			
@@ -592,7 +607,13 @@ function TI30Xa_state(changes){
 				};
 		};
 		if(!['2nd', 'HYP'].includes(label)){
-			next_state = next_state.child({second:false, hyperbolic:false});
+			next_state = next_state.child({second:false});
+			if(!(['1', '2', '3'].includes(label) && state.memorymode !== '')){
+				next_state = next_state.child({hyperbolic:false});
+			}
+			if(!Object.values(MEMORY_KEYS).includes(label)){
+				next_state = next_state.child({memorymode: ''});
+			}
 		};
 		return next_state;
 	}
@@ -780,6 +801,30 @@ function TI30Xa_state(changes){
 			return NaN;
 		}
 		return x;
+	};
+	
+	
+	////////////////////////
+	// memory-related functions
+	
+	function apply_memory_function(digit){
+		const place = Number(digit) - 1;
+		const memorymode = '';
+		const memory = [...state.memory];
+		switch(state.memorymode){
+			case MEMORY_KEYS.store:
+				memory[place] = top_number();
+				return child({memorymode, memory});
+			case MEMORY_KEYS.recall:
+				return push_number(memory[place]).child({memorymode});
+			case MEMORY_KEYS.exchange:
+				const entry = memory[place];
+				memory[place] = top_number();
+				return push_number(entry).child({memorymode, memory});
+			case MEMORY_KEYS.sum:
+				memory[place] += top_number();
+				return child({memorymode, memory});
+		}
 	};
 };
 
