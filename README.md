@@ -24,7 +24,6 @@ This project is far from done! additional tasks include:
  - alternate display modes
  - constant key
  - statistical register
- - memory
  - polar/cartesian conversion, and angle formats
  - fractions
 
