@@ -168,7 +168,6 @@ function TI30Xa_state(changes){
 		push_number,
 		catch_errors,
 		equals,
-		includes_parens,
 		close_paren,
 		shown_number,
 		from_radians,
@@ -213,10 +212,6 @@ function TI30Xa_state(changes){
 		}
 		const precision = (exponent>0) ? 9-exponent : 9;
 		return negative + clear_trailing_zeros(number.toFixed(precision));
-	};
-	
-	function includes_parens(){
-		return state.stack.includes('(');
 	};
 	
 	function to_html(){
@@ -316,7 +311,7 @@ function TI30Xa_state(changes){
 	
 	function equals(){
 		let newstate = state;
-		while(newstate.includes_parens()){
+		while(newstate.stack.includes('(')){
 			newstate = newstate.close_paren();
 		};
 		return (
@@ -757,7 +752,7 @@ function TI30Xa_state(changes){
 	};
 	
 	function close_paren(){
-		if(!includes_parens()){
+		if(!state.stack.includes('(')){
 			return equals();
 		}
 		const next_state = ensure_empty_entry();
