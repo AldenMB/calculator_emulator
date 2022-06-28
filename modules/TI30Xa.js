@@ -554,6 +554,7 @@ function TI30Xa_state(changes){
 			// statistical functions
 			
 			//case "CSR":
+			//case "FRQ":
 			//case "SIG+":
 			//case "SIG-":
 			//case "SIGx":
@@ -566,7 +567,6 @@ function TI30Xa_state(changes){
 			// memory
 			
 			//case "EXC":
-			//case "FRQ":
 			//case "RCL":
 			//case "STO":
 			//case "SUM":
