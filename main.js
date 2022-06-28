@@ -71,6 +71,9 @@ window.onload = function() {
 		const x = (e.clientX - rect.left)/rect.width;
 		const y = (e.clientY - rect.top)/rect.height;
 		const button_label = button_at({x, y});
+		if(button_label === ''){
+			return;
+		}
 		try {
 			calculator.press(button_label);
 			show_history();
