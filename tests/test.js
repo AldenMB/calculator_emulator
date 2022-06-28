@@ -345,6 +345,38 @@ const TESTS = Object.freeze([
 	name: "plus triggers division on stack",
 	sequence: "ON/C 1 0 0 / 2 y^x 2 +",
 	check: number_on_stack_is(25),
+},{
+	name: "recover stored number",
+	sequence: "ON/C 5 STO 1 ON/C RCL 1",
+	check: display_is("5."),
+},{
+	name: "recover number from slot 2",
+	sequence: "ON/C 5 STO 2 ON/C RCL 2",
+	check: display_is("5."),
+},{
+	name: "recover number from slot 3",
+	sequence: "ON/C 5 STO 3 ON/C RCL 3",
+	check: display_is("5."),
+},{
+	name: "there is no memory slot 4",
+	sequence: "ON/C 5 STO 4 ON/C RCL 4",
+	check: display_is("4"),
+},{
+	name: "memory can be overwritten",
+	sequence: "ON/C 7 STO 1 8 STO 1 ON/C RCL 1",
+	check: display_is("8."),
+},{
+	name: "memory starts with a zero",
+	sequence: "ON/C 5 RCL 1",
+	check: display_is("0."),
+},{
+	name: "store puts and entry onto the stack",
+	sequence: "ON/C 4 STO",
+	check: display_is("4."),
+},{
+	name: "store is dropped unless used",
+	sequence: "ON/C 6 STO 4 1",
+	check: display_is("41"),
 }
 ]);
 
