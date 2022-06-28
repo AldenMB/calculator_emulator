@@ -713,14 +713,7 @@ function TI30Xa_state(changes){
 	};
 	
 	function from_radians(angle){
-		switch(state.anglemode){
-			case ANGLE_MODES.radians:
-				return angle;
-			case ANGLE_MODES.degrees:
-				return angle*180/Math.PI;
-			case ANGLE_MODES.grads:
-				return angle*200/Math.PI;
-		};
+		return angle / to_radians(1);
 	};
 	
 	function drg(){
