@@ -859,9 +859,6 @@ function TI30Xa_state(changes){
 	};
 	
 	
-	////////////////////////
-	// memory-related functions
-	
 	function apply_memory_function(digit){
 		const place = Number(digit) - 1;
 		const memorymode = '';
