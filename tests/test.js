@@ -389,6 +389,14 @@ const TESTS = Object.freeze([
 	name: "storing does not clear hyperbolic mode",
 	sequence: "ON/C 9 0 STO HYP 1 TAN", 
 	check: display_is("1."),
+},{
+	name: "tangent 90 gives error",
+	sequence: "ON/C 9 0 TAN",
+	check: is_error,
+},{
+	name: "cosine 90 gives 0",
+	sequence: "ON/C 9 0 COS 2nd 3",
+	check: display_is("1."),
 }
 ]);
 
