@@ -399,11 +399,11 @@ const TESTS = Object.freeze([
 	check: display_is("1."),
 },{
 	name: "cosine rounds near zero",
-	sequence: "ON/C 1 EE +- 7 COS 2nd 3",
+	sequence: "ON/C 2 EE +- 5 COS 2nd 3",
 	check: is_not_error,
 },{
 	name: "cosine does not round far from zero",
-	sequence: "ON/C 1 EE +- 6 COS 2ND 3",
+	sequence: "ON/C 3 EE +- 5 COS 2nd 3",
 	check: is_error,
 }
 ]);

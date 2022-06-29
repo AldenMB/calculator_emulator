@@ -480,7 +480,7 @@ function TI30Xa_state(changes){
 				next_state = apply_pure_function(x => Math.sin(to_radians(trig_overflow_protect(x))));
 				break;
 			case "COS":
-				next_state = apply_pure_function(x => Math.cos(to_radians(trig_overflow_protect(x))));
+				next_state = apply_pure_function(cos);
 				break;
 			case "TAN":
 				next_state = apply_pure_function(x => Math.tan(to_radians(trig_overflow_protect(x))));
@@ -735,6 +735,20 @@ function TI30Xa_state(changes){
 	
 	function from_radians(angle){
 		return angle / to_radians(1);
+	};
+	
+	function cos(angle){
+		const ans = Math.cos(to_radians(trig_overflow_protect(angle)));
+		if(Math.abs(ans)<1e-10){
+			return 0;
+		}
+		if(ans>1-1e-13){
+			return 1;
+		}
+		if(ans<-1+1e-13){
+			return -1;
+		}
+		return ans;
 	};
 	
 	function drg(){
