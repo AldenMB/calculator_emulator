@@ -422,7 +422,10 @@ const TESTS = Object.freeze([
 	name: "eleven rounding error",
 	sequence: "ON/C 1 1 / 2 y^x 2 0 + 1 - 1 = * 2 y^x 2 0 - 1 1 =",
 	check: number_on_stack_is(0.000_000_02),
-},{ 
+},{
+	name: "trig functions accurate to ten places",
+	sequence: "ON/C 8 9 . 9 9 9 9 9 9 9 9 TAN",
+	check: display_is("5729577951."),
 */
 
 function run_all_tests(verbose=false){
