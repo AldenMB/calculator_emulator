@@ -35,6 +35,15 @@ function normalize_errors(num){
 	return num;
 };
 
+function mod(n, d){
+	return ((n%d)+d)%d;
+};
+
+function floating_epsilon(x){
+	const nearby = parseFloat(x.toPrecision(12));
+	return Math.abs(nearby-x);
+};
+
 function clear_trailing_zeros(str){
 	while(str.slice(-1) === '0'){
 		str = str.slice(0, -1);
@@ -43,7 +52,7 @@ function clear_trailing_zeros(str){
 };
 
 function is_integer(number){
-	const remainder = number % 1;
+	const remainder = mod(number, 1);
 	return remainder <= 1e-14*number;
 };
 
@@ -477,13 +486,13 @@ function TI30Xa_state(changes){
 				next_state = apply_pure_function(Math.log10);
 				break;
 			case "SIN":
-				next_state = apply_pure_function(x => Math.sin(to_radians(trig_overflow_protect(x))));
+				next_state = apply_pure_function(sin);
 				break;
 			case "COS":
 				next_state = apply_pure_function(cos);
 				break;
 			case "TAN":
-				next_state = apply_pure_function(x => Math.tan(to_radians(trig_overflow_protect(x))));
+				next_state = apply_pure_function(tan);
 				break;
 			case "ASIN":
 				next_state = apply_pure_function(x => from_radians(Math.asin(x)));
@@ -738,17 +747,49 @@ function TI30Xa_state(changes){
 	};
 	
 	function cos(angle){
-		const ans = Math.cos(to_radians(trig_overflow_protect(angle)));
-		if(Math.abs(ans)<1e-10){
+		const radian = to_radians(trig_overflow_protect(angle));
+		const eps = floating_epsilon(radian);
+		if(Math.abs(mod(radian, Math.PI) - Math.PI/2) < eps){
 			return 0;
 		}
-		if(ans>1-1e-13){
+		if(Math.abs(mod(radian+Math.PI/2, 2*Math.PI)-Math.PI/2) < eps){
 			return 1;
 		}
-		if(ans<-1+1e-13){
+		if(Math.abs(mod(radian-Math.PI/2, 2*Math.PI)-Math.PI/2) < eps){
 			return -1;
 		}
+		const ans = Math.cos(radian);
+		if(ans > 1-1e-13){
+			return 1;
+		}
 		return ans;
+	};
+	
+	function sin(angle){
+		const radian = to_radians(trig_overflow_protect(angle));
+		const eps = floating_epsilon(radian);
+		if(Math.abs(mod(radian+Math.PI/2, Math.PI) - Math.PI/2) < eps){
+			return 0;
+		}
+		if(Math.abs(mod(radian, 2*Math.PI)-Math.PI/2) < eps){
+			return 1;
+		}
+		if(Math.abs(mod(radian, 2*Math.PI)-3*Math.PI/2) < eps){
+			return -1;
+		}
+		return Math.sin(radian);		
+	};
+	
+	function tan(angle){
+		const radian = to_radians(trig_overflow_protect(angle));
+		const eps = floating_epsilon(radian);
+		if(Math.abs(mod(radian+Math.PI/2, Math.PI) - Math.PI/2) < eps){
+			return 0;
+		}
+		if(Math.abs(mod(radian, Math.PI)-Math.PI/2) < eps){
+			return NaN;
+		}
+		return Math.tan(radian);		
 	};
 	
 	function drg(){
