@@ -397,6 +397,14 @@ const TESTS = Object.freeze([
 	name: "cosine 90 gives 0",
 	sequence: "ON/C 9 0 COS 2nd 3",
 	check: display_is("1."),
+},{
+	name: "cosine rounds near zero",
+	sequence: "ON/C 1 EE +- 7 COS 2nd 3",
+	check: is_not_error,
+},{
+	name: "cosine does not round far from zero",
+	sequence: "ON/C 1 EE +- 6 COS 2ND 3",
+	check: is_error,
 }
 ]);
 
