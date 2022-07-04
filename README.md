@@ -27,7 +27,11 @@ This project is far from done! additional tasks include:
  - polar/cartesian conversion, and angle formats
  - fractions
 
+## guaranteeing reliability
+
+ - Since this is an emulator, we can in principle test any input against the real calculator to see what it should do. This has mostly been done by hand so far, but I have some ideas for how this could be done automatically by rewiring the calculator's internals. It would be impractical to test every possible input, since there are 40-to-the-n button press sequences of length n. However, since most of those sequences never occur, it should be feasible to test every (or nearly every) sequence of button presses which are done on the website. This would just require collecting some usage statistics.
+
 ## new features
 
  - use the same base-10 floating point representation which the calculator uses, so it behaves exactly identical even in later decimal places.
- - add a mode to show my proposal for the perfect pocket calculator. It should be almost identical, but it should do away with the polar subsystem and use the three freed-up buttons to add some conspicuously-missing functions: modulus, normal CDF, and inverse normal CDF. Also, it should allow fractions in more contexts -- I should be able to square or reciprocal a fraction without it being converted to a decimal.
+ - add a mode to show my proposal for the perfect pocket calculator. It should be almost identical, but it should do away with the polar subsystem and use the three freed-up buttons to add some conspicuously-missing functions: modulus, normal CDF, and inverse normal CDF. There is an open spot already on the 2nd function of the +/- key, so we can even have one more function for free. Why not a uniform random number generator? Also, it should allow fractions in more contexts -- I should be able to square or reciprocal a fraction without it being converted to a decimal.
