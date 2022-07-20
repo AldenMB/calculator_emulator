@@ -30,7 +30,7 @@ window.onload = function() {
 	const calculator = TI30Xa();
 	const calc_history = document.getElementById("calc_history");
 	const calc_state = document.getElementById("calc_state");
-	const log = Log("https://webhook.site/8173af1e-d7a8-41df-9232-b48c85ed1632");
+	const log = Log("https://webhook.site/a6ef4cf0-ec31-46b2-b4f9-89b23af5295c");
 	
 	function get_segments(digit, exponent){
 		const segments = {}
