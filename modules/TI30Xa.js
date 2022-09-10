@@ -468,6 +468,11 @@ function TI30Xa_state(changes){
 				next_state = close_paren();
 				break;
 			
+			// constant
+			case "pi":
+				next_state = push_number(Math.PI);
+				break;
+			
 			// single variable functions
 			
 			case "1/x":
@@ -520,9 +525,6 @@ function TI30Xa_state(changes){
 				break;
 			case "ATANH":
 				next_state = apply_pure_function(Math.atanh);
-				break;
-			case "pi":
-				next_state = apply_pure_function(x => Math.PI);
 				break;
 			case "x^2":
 				next_state = apply_pure_function(x => x**2);

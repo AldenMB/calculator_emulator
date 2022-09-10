@@ -405,6 +405,10 @@ const TESTS = Object.freeze([
 	name: "cosine does not round far from zero",
 	sequence: "ON/C 3 EE +- 5 COS 2nd 3",
 	check: is_error,
+},{
+	name: "two times pi",
+	sequence: "ON/C 2 * pi =",
+	check: display_is("6.283185307"),
 }
 ]);
 
