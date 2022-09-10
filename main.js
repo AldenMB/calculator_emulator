@@ -2,7 +2,7 @@ import {TI30Xa,} from './modules/TI30Xa.js';
 import {to_button_coords, button_at} from './modules/button_parse.js';
 import {run_all_tests,} from './tests/test.js';
 import {make_display,} from './modules/seven_segment.js';
-import {Log,} from './modules/logging.js';
+//import {Log,} from './modules/logging.js';
 
 
 function add_hover_coords(picture, display){
@@ -30,7 +30,7 @@ window.onload = function() {
 	const calculator = TI30Xa();
 	const calc_history = document.getElementById("calc_history");
 	const calc_state = document.getElementById("calc_state");
-	const log = Log("https://webhook.site/a6ef4cf0-ec31-46b2-b4f9-89b23af5295c");
+	//const log = Log("https://webhook.site/a6ef4cf0-ec31-46b2-b4f9-89b23af5295c");
 	
 	function get_segments(digit, exponent){
 		const segments = {}
@@ -63,7 +63,7 @@ window.onload = function() {
 		calc_history.innerHTML = calculator.to_html();
 		calc_state.innerHTML = calculator.current_html();
 		display.update(calculator.now());
-		log.include(calculator);
+		//log.include(calculator);
 	};
 	show_history();
 	calculator.press('ON/C');
