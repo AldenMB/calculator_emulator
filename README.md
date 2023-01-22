@@ -29,7 +29,9 @@ This project is far from done! additional tasks include:
 
 ## guaranteeing reliability
 
- - Since this is an emulator, we can in principle test any input against the real calculator to see what it should do. This has mostly been done by hand so far, but I have some ideas for how this could be done automatically by rewiring the calculator's internals. It would be impractical to test every possible input, since there are 40-to-the-n button press sequences of length n. However, since most of those sequences never occur, it should be feasible to test every (or nearly every) sequence of button presses which are done on the website. This would just require collecting some usage statistics. Currently, any button press sequences are being sent to [a free HTTP loging service]( https://webhook.site/#!/a6ef4cf0-ec31-46b2-b4f9-89b23af5295c/). 
+ - Since this is an emulator, we can in principle test any input against the real calculator to see what it should do. It would be impractical to test every possible input, since there are 40-to-the-n button press sequences of length n. However, since most of those sequences never occur, it should be feasible to test every (or nearly every) sequence of button presses which are done on the website. This would just require collecting some usage statistics. 
+ 
+ This is the idea at the heart of [Xanthippe](https://aldenbradford.com/introducing-xanthippe.html). Once your calculator session has ended, the sequence of buttons you pressed will be sent to a small computer sitting in my living room which pushes those same buttons on a real TI-30Xa calculator.
 
 ## new features
 

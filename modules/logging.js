@@ -1,17 +1,47 @@
 import {BUTTON_LABELS} from './button_parse.js';
 
-const encoding = {};
-BUTTON_LABELS.forEach((row, i) => {
-	row.forEach((label, j) => {
-		encoding[label] = (
-			i < 4
-			?
-			String.fromCharCode(4*i + j + 'A'.charCodeAt())
-			:
-			String.fromCharCode(4*(i-4) + j + 'a'.charCodeAt())
-		);
-	});
-});
+const encoding = {
+  "+/-": "A",
+  "2nd": "B",
+  "+": "C",
+  "0": "D",
+  ".": "E",
+  "SIN": "F",
+  "1/x": "G",
+  "y^x": "I",
+  "HYP": "J",
+  "-": "K",
+  "1": "L",
+  "5": "M",
+  "COS": "N",
+  "x^2": "O",
+  "OFF": "Q",
+  "pi": "R",
+  "X": "S",
+  "2": "T",
+  "6": "U",
+  "TAN": "V",
+  "sqrt": "W",
+  "Sigma+": "Z",
+  "/": "a",
+  "3": "b",
+  "7": "c",
+  "DRG": "d",
+  "EE": "e",
+  "STO": "h",
+  "=": "i",
+  "4": "j",
+  "8": "k",
+  "LOG": "l",
+  "(": "m",
+  "RCL": "p",
+  "ab/c": "q",
+  "<-": "r",
+  "9": "s",
+  "LN": "t",
+  ")": "u",
+  "ON/C": "4"
+}
 Object.freeze(encoding);
 
 function add_child(node, s){
@@ -39,6 +69,7 @@ function Log(url){
 		add_child(records, 
 			calculator
 			.command_log
+			.slice(1) // no need to start with the "on" button
 			.map(label => encoding[label])
 			.join('')
 		);
