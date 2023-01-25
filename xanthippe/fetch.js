@@ -236,9 +236,9 @@ function toText(screen){
 		.join('')
 	);
 	const row2 = (
-		(g10 ? '-' : ' ')
+		(g10 ? '- ' : '  ')
 		+ bytes.slice(3, 13).map(letterOf).reverse().join('')
-		+ (e2g ? '-' : '').padStart(13)
+		+ (e2g ? '-' : '').padStart(12)
 		+ bytes.slice(1, 3).map(letterOf).map(x => x[0]).reverse().join('')
 	);
 	const string = row1 + '\n' + row2;
