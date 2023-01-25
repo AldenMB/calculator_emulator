@@ -252,31 +252,21 @@ function TI30Xa_state(changes){
 		const xr = false? 'XR': '  '; //placeholder
 		const parens = state.stack.includes('(') ? '()' : '  ';
 		const konstant = false? 'K' : ' ';
-		const topline = [memory, second, hyp, format, fix, stat, angle, xr, parens, konstant].join('');
+		const topline = [memory, second, hyp, format, fix, stat, angle, xr, parens, konstant, '\n'].join('');
 		
-		let bottomline = ' '.repeat(36);
 		if( state.error ){
-			bottomline = '       E r r o r                    ';
-		} else {
-			const bottomchars = bottomline.split('');
-			let [mantissa, exponent] = shown_number().split('e');
-			if (typeof exponent !== 'undefined'){
-				exponent = exponent.padStart(3, ' ');
-				for (let i=0; i<3; ++i){
-					bottomchars[33+i] = exponent[i];
-				}
-			}
-			if (mantissa.includes('.')){
-				const position = mantissa.split('').reverse().indexOf('.');
-				bottomchars[21-2*position] = '.';
-				mantissa = mantissa.replace('.', '');
-			}
-			mantissa.split('').reverse().forEach((symbol, position) => {
-				bottomchars[20-2*position] = symbol;
-			});
-			bottomline = bottomchars.join('');
+			return boxify(topline + 'E r r o r'.padStart(16, ' ').padEnd(36, ' '), 36);
 		}
-		return boxify(topline + '\n' + bottomline, 36);
+		
+		const [mantissa, exponent] = shown_number().split('e');
+		const dp_idx = 10 - mantissa.split('').reverse().indexOf('.');
+		const digits = mantissa.replace('.', '').padStart(11, ' ');
+		const interlaced = (digits
+			.split('')
+			.map((x, i) => x+(i===dp_idx ? '.' : ' '))
+			.join('')
+		);
+		return boxify(topline + interlaced + (exponent || '').padStart(14, ' '), 36);
 	};
 	
 	function shown_number(){
