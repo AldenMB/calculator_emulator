@@ -66,8 +66,6 @@ window.onload = function() {
 		log.include(calculator);
 	};
 	show_history();
-	calculator.press('ON/C');
-	show_history();
 	
 	keyboard.onclick = function(e){
 		const rect = keyboard.getBoundingClientRect();

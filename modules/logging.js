@@ -69,7 +69,6 @@ function Log(url){
 		add_child(records, 
 			calculator
 			.command_log
-			.slice(1) // no need to start with the "on" button
 			.map(label => encoding[label])
 			.join('')
 		);

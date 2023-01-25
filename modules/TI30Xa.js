@@ -182,7 +182,7 @@ const DEFAULT_STATE = Object.freeze({
 	formatmode: FORMAT_MODES.floating,
 	fixprecision: -1,
 	statregister: false, // placeholder for printing
-	on: false,
+	on: true,
 });
 
 function TI30Xa_state(changes){
