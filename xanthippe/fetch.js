@@ -12,7 +12,7 @@ function pipeStream(from, to) {
   });
 }
 
-async function refreshDatabase(){
+async function downloadDatabase(){
 	return https.get("https://home.aldenbradford.com:58086", async (res) => {
 		console.log('statusCode:', res.statusCode);
 		console.log('headers:', res.headers);
@@ -21,30 +21,7 @@ async function refreshDatabase(){
 	});
 };
 
-function treeAppend(root, name, data){
-	if (name === ''){
-		root.data = data;
-	} else {
-		const crumb = name[0];
-		const tail = name.slice(1);
-		root[crumb] = root[crumb] || {};
-		treeAppend(root[crumb], tail, data);
-	}
-};
-
-function* treeUnravel(root, prefix=''){
-	const {data, ...children} = root;
-	if (Object.keys(children).length == 0){
-		yield [prefix, data];
-	} else {
-		for (const [crumb, child] of Object.entries(children)){
-			yield* treeUnravel(child, prefix+crumb);
-		}
-	}
-};
-
-async function fetch(){
-	const root = {};
+async function* readSessions(){
 	const reader = readline.createInterface({
 	  input: fs.createReadStream('xanthippe.csv.gz').pipe(zlib.createGunzip()),
 	});
@@ -53,12 +30,123 @@ async function fetch(){
 		buttons = buttons == '""' ? '' : buttons;
 		screen = screen.slice(3, -2);
 		requested = requested === '1';
-		if(typeof screen === 'undefined'){
-			console.log(line);
-		}
-		treeAppend(root, buttons, {screen, requested});
+		yield {buttons, screen, requested};
 	}
-	return root;
+};
+
+const encoding = {
+	"+-": "A",
+	"2nd": "B",
+	"+": "C",
+	"0": "D",
+	".": "E",
+	"SIN": "F",
+	"1/x": "G",
+	"y^x": "I",
+	"HYP": "J",
+	"-": "K",
+	"1": "L",
+	"5": "M",
+	"COS": "N",
+	"x^2": "O",
+	"OFF": "Q",
+	"pi": "R",
+	"X": "S",
+	"2": "T",
+	"6": "U",
+	"TAN": "V",
+	"sqrt": "W",
+	"Sigma+": "Z",
+	"/": "a",
+	"3": "b",
+	"7": "c",
+	"DRG": "d",
+	"EE": "e",
+	"STO": "h",
+	"=": "i",
+	"4": "j",
+	"8": "k",
+	"LOG": "l",
+	"(": "m",
+	"RCL": "p",
+	"ab/c": "q",
+	"<-": "r",
+	"9": "s",
+	"LN": "t",
+	")": "u",
+	"ON/C": "4"
+}
+Object.freeze(encoding);
+
+const decoding = {
+	'A': '+-',
+	'B': '2nd',
+	'C': '+',
+	'D': '0',
+	'E': '.',
+	'F': 'SIN',
+	'G': '1/x',
+	'I': 'y^x',
+	'J': 'HYP',
+	'K': '-',
+	'L': '1',
+	'M': '5',
+	'N': 'COS',
+	'O': 'x^2',
+	'Q': 'OFF',
+	'R': 'pi',
+	'S': 'X',
+	'T': '2',
+	'U': '6',
+	'V': 'TAN',
+	'W': 'sqrt',
+	'Z': 'Sigma+',
+	'a': '/',
+	'b': '3',
+	'c': '7',
+	'd': 'DRG',
+	'e': 'EE',
+	'h': 'STO',
+	'i': '=',
+	'j': '4',
+	'k': '8',
+	'l': 'LOG',
+	'm': '(',
+	'p': 'RCL',
+	'q': 'ab/c',
+	'r': '<-',
+	's': '9',
+	't': 'LN',
+	'u': ')',
+	'4': 'ON/C'
+};
+Object.freeze(decoding);
+
+async function loadDatabase(){
+	const data = new Map();
+	for await (const {buttons, screen, requested} of readSessions()){
+		data.set(buttons, screen);
+	}
+	
+	function get(presses){
+		const buttons = presses.map(p => encoding[p]).join('');
+		if (data.has(buttons)){
+			return toText(data.get(buttons));
+		} else {
+			throw new Error('Xanthippe has not recorded the sequence');
+		}
+	};
+	
+	function* iter(){
+		for (const [buttons, screen] of data){
+			const presses = buttons.split('').map(c => decoding[c]);
+			yield [presses, toText(screen)];
+		};
+	};
+	
+	const retval = {get};
+	retval[Symbol.iterator] = iter;
+	return retval;
 };
 
 function sevenseg(bits){
@@ -99,7 +187,7 @@ function letterOf(b){
 	return symboltable[b & 0x7f] + ((b & 0x80) ? '.' : ' ');
 };
 
-function decode(screen){
+function toText(screen){
 	const bytes = screen.match(/.{1,2}/g).map(x => (
 		parseInt(x, 16)
 	));
@@ -136,8 +224,8 @@ function decode(screen){
 		s.SCI
 	] = bits[13]
 	
-	const row1 = ("M1|M2|M3|2nd|HYP|SCI|ENG|FIX|STAT|DE|G|RAD|X|R|()|K"
-		.split('|')
+	const row1 = ("M1,M2,M3,2nd,HYP,SCI,ENG,FIX,STAT,DE,G,RAD,X,R,(),K"
+		.split(',')
 		.map( x => (
 			s[x.trim()] 
 			?
@@ -150,7 +238,7 @@ function decode(screen){
 	const row2 = (
 		(g10 ? '-' : ' ')
 		+ bytes.slice(3, 13).map(letterOf).reverse().join('')
-		+ (e2g ? ' -' : '  ')
+		+ (e2g ? '-' : '').padStart(13)
 		+ bytes.slice(1, 3).map(letterOf).map(x => x[0]).reverse().join('')
 	);
 	const string = row1 + '\n' + row2;
@@ -158,12 +246,30 @@ function decode(screen){
 	s.mantissa = mantissa;
 	s.exponent = exponent;
 	
-	return {segments: s, string};
+	return boxify(string, 36);
 };
 
+function boxify(str, length){
+	const header = '┌' + '─'.repeat(length) + '┐\n│';
+	const body = str.split('\n').join('│\n│');
+	const footer = '│\n└' + '─'.repeat(length) + '┘';
+	return header + body + footer;
+};
 
-console.log(decode('f'.repeat(28)).string);
-const tree = await fetch();
-console.log(decode(tree.t.data.screen).string);
+console.log(toText('f'.repeat(28)));
+const db = await loadDatabase();
+console.log(db.get(['pi', '+-']));
 
-export {fetch, refreshDatabase, treeUnravel};
+let x = 20
+for (const [presses, screen] of db){
+	--x;
+	console.log('');
+	console.log(presses.join(" -> "));
+	console.log(screen);
+	if(x === 0){
+		break;
+	}
+}
+
+
+export {loadDatabase, downloadDatabase};
