@@ -144,6 +144,13 @@ function make_display({indicators, mantissa_list, exponent_list}){
 			display.exponent = '';
 			return;
 		}
+		
+		// TODO: include logic for this
+		for(const indicator of 'FIX STAT X R K'.split(' ')){
+			display[indicator] = false;
+		}
+		display.format = calculator_state.format;
+		
 		display['2nd'] = calculator_state.second;
 		display['()'] = calculator_state.stack.includes('(');
 		display.HYP = calculator_state.hyperbolic;
