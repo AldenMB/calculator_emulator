@@ -1,5 +1,12 @@
 import {BUTTON_LABELS, SECOND_LABELS} from "./button_parse.js";
 
+function boxify(str, length){
+	const header = '┌' + '─'.repeat(length) + '┐\n│';
+	const body = str.split('\n').join('│\n│');
+	const footer = '│\n└' + '─'.repeat(length) + '┘';
+	return header + body + footer;
+};
+
 const BINARY_OPS = Object.freeze({
 	times: '*',
 	divide: '/',
@@ -22,6 +29,12 @@ const MEMORY_KEYS = Object.freeze({
 	recall: 'RCL',
 	exchange: 'EXC',
 	sum: 'SUM',
+});
+
+const FORMAT_MODES = Object.freeze({
+	scientific: 'SCI',
+	engineering: 'ENG',
+	floating: 'FLO',
 });
 
 function array_equal(arr1, arr2){
@@ -166,6 +179,9 @@ const DEFAULT_STATE = Object.freeze({
 	second: false,
 	hyperbolic: false,
 	anglemode: ANGLE_MODES.degrees,
+	formatmode: FORMAT_MODES.floating,
+	fixprecision: -1,
+	statregister: false, // placeholder for printing
 	on: false,
 });
 
@@ -177,6 +193,7 @@ function TI30Xa_state(changes){
 	const public_methods = {
 		push_button,
 		child,
+		to_text_display,
 		ensure_empty_entry,
 		to_html,
 		reduce_binary_op,
@@ -200,6 +217,66 @@ function TI30Xa_state(changes){
 		
 	function child(changes){
 		return TI30Xa_state(Object.assign({}, state, changes));
+	};
+	
+	function to_text_display(){
+		// produce an output like the following:
+		// ┌────────────────────────────────────┐
+		// │M1M2M32ndHYPSCIENGFIXSTATDEGRADXR()K│
+		// │-8.8.8.8.8.8.8.8.8.8.            -88│
+		// └────────────────────────────────────┘
+		
+		if (!state.on){
+			return boxify(' '.repeat(36)+'\n' +' '.repeat(36), 36);
+		}
+		
+		const memory = ('M1,M2,M3'
+			.split(',')
+			.map( (x, i) => state.memory[i] === 0? '  ' : x)
+			.join('')
+		);
+		const second = state.second? '2nd' : '   ';
+		const hyp = state.hyperbolic? 'HYP' : '   ';
+		const format = {
+			[FORMAT_MODES.scientific]:  'SCI   ',
+			[FORMAT_MODES.engineering]: '   ENG',
+			[FORMAT_MODES.floating]:    '      ',
+		}[state.formatmode];
+		const fix = state.fixprecision === -1? '   ' : 'FIX';
+		const stat = state.statregister? 'STAT' : '    ';
+		const angle = {
+			[ANGLE_MODES.degrees] : 'DEG   ',
+			[ANGLE_MODES.radians] : '   RAD',
+			[ANGLE_MODES.grads]   : '  GRAD',
+		}[state.anglemode];
+		const xr = false? 'XR': '  '; //placeholder
+		const parens = state.stack.includes('(') ? '()' : '  ';
+		const konstant = false? 'K' : ' ';
+		const topline = [memory, second, hyp, format, fix, stat, angle, xr, parens, konstant].join('');
+		
+		let bottomline = ' '.repeat(36);
+		if( state.error ){
+			bottomline = '       E r r o r                    ';
+		} else {
+			const bottomchars = bottomline.split('');
+			let [mantissa, exponent] = shown_number().split('e');
+			if (typeof exponent !== 'undefined'){
+				exponent = exponent.padStart(3, ' ');
+				for (let i=0; i<3; ++i){
+					bottomchars[33+i] = exponent[i];
+				}
+			}
+			if (mantissa.includes('.')){
+				const position = mantissa.split('').reverse().indexOf('.');
+				bottomchars[21-2*position] = '.';
+				mantissa = mantissa.replace('.', '');
+			}
+			mantissa.split('').reverse().forEach((symbol, position) => {
+				bottomchars[20-2*position] = symbol;
+			});
+			bottomline = bottomchars.join('');
+		}
+		return boxify(topline + '\n' + bottomline, 36);
 	};
 	
 	function shown_number(){
@@ -886,7 +963,7 @@ function TI30Xa(){
 	const history = [TI30Xa_state()];
 	const command_log = [];
 	//for debugging purposes:
-	document.my_history = history;
+	//document.my_history = history;
 	
 	return {history, command_log, now, press, undo, to_html, current_html};
 	
