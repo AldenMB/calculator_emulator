@@ -149,7 +149,7 @@ function make_display({indicators, mantissa_list, exponent_list}){
 		for(const indicator of 'FIX STAT X R K'.split(' ')){
 			display[indicator] = false;
 		}
-		display.format = calculator_state.format;
+		display.format = calculator_state.formatmode;
 		
 		display['2nd'] = calculator_state.second;
 		display['()'] = calculator_state.stack.includes('(');
