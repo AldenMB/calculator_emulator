@@ -335,7 +335,7 @@ function TI30Xa_state(changes){
 			return negative+String(number)+'.';
 		}
 		const precision = (exponent>0) ? 9-exponent : 9;
-		return negative + clear_trailing_zeros(number.toFixed(precision));
+		return negative + clear_trailing_zeros(number.toFixed(precision)) + (precision === 0? '.' : '');
 	};
 	
 	function to_html(){
