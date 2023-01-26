@@ -2,6 +2,7 @@ import https from "https";
 import fs from "fs";
 import zlib from "zlib";
 import readline from "readline";
+import { fileURLToPath } from "url";
 
 function pipeStream(from, to) {
   return new Promise((resolve, reject) => {
@@ -138,7 +139,10 @@ async function loadDatabase(){
 	};
 	
 	function* iter(){
-		for (const [buttons, screen] of data){
+		for (const [buttons, screen] of [...data].sort((x, y) => x[0].length - y[0].length)){
+			if (screen.length<28){
+				continue;
+			}
 			const presses = buttons.split('').map(c => decoding[c]);
 			yield [presses, toText(screen)];
 		};
@@ -256,20 +260,9 @@ function boxify(str, length){
 	return header + body + footer;
 };
 
-console.log(toText('f'.repeat(28)));
-const db = await loadDatabase();
-console.log(db.get(['pi', '+-']));
 
-let x = 20
-for (const [presses, screen] of db){
-	--x;
-	console.log('');
-	console.log(presses.join(" -> "));
-	console.log(screen);
-	if(x === 0){
-		break;
-	}
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    await downloadDatabase();
 }
-
 
 export {loadDatabase, downloadDatabase};
