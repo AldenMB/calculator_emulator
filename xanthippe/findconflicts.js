@@ -18,6 +18,9 @@ for await(const [sequence, screen] of db){
 	){
 		continue;
 	}
+	if(['SIN','COS','TAN'].some(x => sequence.includes(x))){
+		continue;
+	}
 	const c = TI30Xa();
 	try{
 		sequence.forEach(x => c.press(x));
