@@ -1,47 +1,62 @@
 import {TI30Xa, array_equal} from '../modules/TI30Xa.js';
 import {run_all_tests} from '../tests/test.js';
-import {loadDatabase} from './fetch.js';
+import {loadDatabase, iterDatabase} from './fetch.js';
 
 console.log(run_all_tests());
 
-const db = await loadDatabase();
+function calcTree(state = TI30Xa().now()){
+	const cache = new Map();
+	const screen = state.to_text_display();
+	
+	function get(presses){
+		if (presses.length === 0){
+			return screen;
+		} else {
+			const p = presses[0];
+			if(!cache.has(p)){
+				cache.set(p, calcTree(state.push_button(p)));
+			}
+			return cache.get(p).get(presses.slice(1));
+		}
+	};
+	
+	return {get};
+};
 
-const discovered_conflicts = [];
+let conflicts = 0;
 let successes = 0;
-for await(const [sequence, screen] of db){
-	if(sequence
-		.map((s, i) => sequence.slice(0, i+1))
-		.some( x => discovered_conflicts.some(
-				y => array_equal(x, y)
-			)
-		)
-	){
+const maxConflicts = 4;
+const exclusions = ['SIN', 'COS', 'TAN'];
+const calc = calcTree();
+
+
+console.log('searching...');
+for await (const [sequence, screen] of iterDatabase()){
+	if(sequence.some(x => exclusions.includes(x))){
 		continue;
 	}
-	if(['SIN','COS','TAN'].some(x => sequence.includes(x))){
-		continue;
-	}
-	const c = TI30Xa();
-	try{
-		sequence.forEach(x => c.press(x));
-		const computed = c.now().to_text_display();
-		if(computed !== screen){
-			discovered_conflicts.push(sequence);
-			console.log(sequence);
+	try {
+		process.stdout.write(`${successes}\r`);
+		const computed = calc.get(sequence);
+		if(computed === screen){
+			successes++;
+		} else {
+			conflicts++;
+			console.log(sequence.join(' -> '));
 			console.log('Computed:');
 			console.log(computed);
-			console.log('Actual:');
+			console.log('Measured:');
 			console.log(screen);
-			if(discovered_conflicts.length>=5){
-				break;
-			}
-		} else {
-			successes++;
-		};
-	} catch (error) {
+			console.log('');
+		}
+		if (conflicts > maxConflicts){
+			break;
+		}
+	} catch(error) {
 		if (error.error !== 'not implemented'){
 			throw error;
 		}
 	}
 }
-console.log('found '+successes+' matching cases');
+
+console.log(`Found ${successes} successes before ${maxConflicts} conflicts were discovered`);
