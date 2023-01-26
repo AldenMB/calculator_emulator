@@ -598,7 +598,7 @@ function TI30Xa_state(changes){
 				next_state = apply_pure_function(x => 10**x);
 				break;
 			case "3ROOTx":
-				next_state = apply_pure_function(x => x**(1/3));
+				next_state = apply_pure_function(x => Math.sign(x)*Math.abs(x)**(1/3));
 				break;
 			case "LN":
 				next_state = apply_pure_function(Math.log);
