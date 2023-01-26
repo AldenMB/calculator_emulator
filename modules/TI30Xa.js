@@ -85,6 +85,24 @@ function factorial(x){
 	return x * factorial(x-1);
 };
 
+// even bernoulli numbers B2,B4,B6,...
+const BERNOULLI = [  
+	1.66666667e-01, -3.33333333e-02,  2.38095238e-02, -3.33333333e-02,
+	7.57575758e-02, -2.53113553e-01,  1.16666667e+00, -7.09215686e+00,
+];
+
+function loggamma(z){
+	// formula 6.1.40 of Handbook of Mathematical Functions
+	return (
+		(z-1/2)*Math.log(z) 
+		- z
+		+1/2*Math.log(2*Math.PI)
+		+BERNOULLI.map( (B, n) => (
+			B/(2*(n+1)*(2*n+1)*z**(2*n+1))
+		)).reduce((x, a) => (x+a), 0)
+	);
+};
+
 function permutation(n, r){
 	if(r < 0 || n < 0 || !is_integer(r) || !is_integer(n)){
 		return NaN;
@@ -92,11 +110,15 @@ function permutation(n, r){
 	if(r > n){
 		return 0;
 	};
-	return (
-		[...Array(r).keys()]
-		.map(x => x + n - r + 1)
-		.reduce(((x,y) => x*y), 1)
-	);
+	if(n < 20){
+		return (
+			[...Array(r).keys()]
+			.map(x => x + n - r + 1)
+			.reduce(((x,y) => x*y), 1)
+		);
+	}
+	return Math.exp(loggamma(n+1) - loggamma(r+1));
+
 };
 
 function combination(n, r){
@@ -109,7 +131,12 @@ function combination(n, r){
 	if(r > n/2){
 		r = n - r;
 	};
-	return permutation(n, r) / factorial(r);
+	if(n<20){
+		return permutation(n, r) / factorial(r);
+	} else {
+		return  Math.exp(loggamma(n+1) - loggamma(r+1) - loggamma(n-r+1));
+	}
+	
 };
 
 function second_map(label){
