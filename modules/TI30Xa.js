@@ -135,6 +135,9 @@ function apply_binary_op(a, op, b){
 		case BINARY_OPS.divide:
 			return a/b;
 		case BINARY_OPS.power:
+			if (a === 0 && b === 0){
+				return NaN;
+			}
 			return a**b;
 		case BINARY_OPS.root:
 			return a**(1/b);
@@ -206,6 +209,7 @@ function TI30Xa_state(changes){
 		close_paren,
 		shown_number,
 		from_radians,
+		drg,
 	};
 	
 	const state = Object.assign({}, DEFAULT_STATE, changes, public_methods);
@@ -255,7 +259,7 @@ function TI30Xa_state(changes){
 		const topline = [memory, second, hyp, format, fix, stat, angle, xr, parens, konstant, '\n'].join('');
 		
 		if( state.error ){
-			return boxify(topline + 'E r r o r'.padStart(16, ' ').padEnd(36, ' '), 36);
+			return boxify(topline + 'E r r o r'.padStart(17, ' ').padEnd(36, ' '), 36);
 		}
 		
 		const [mantissa, exponent] = shown_number().split('e');
@@ -323,6 +327,9 @@ function TI30Xa_state(changes){
 		entry += digit;
 		if( entry[0] === '0' && entry.length > 1 && entry[1] !== '.'){
 			entry = entry.slice(1);
+		};
+		if( entry.slice(0,2) === '-0' && entry.length > 2 && entry[2] !== '.'){
+			entry = '-' + entry.slice(2);
 		};
 		return state.child({entry});
 	};
@@ -407,6 +414,7 @@ function TI30Xa_state(changes){
 			newstate
 			.ensure_empty_entry()
 			.reduce_binary_op()
+			.pop_binary_op()
 			.catch_errors()
 		);
 	};
@@ -449,7 +457,11 @@ function TI30Xa_state(changes){
 	};
 	
 	function on(){
-		return child({on:true, stack:[0], entry:'', error:false});		
+		if (state.entry === '' || !state.on){
+			return child({on:true, stack:[0], entry:'', error:false});
+		} else {
+			return child({entry:''}).push_number(0);
+		}			
 	};
 	
 	function off(){
@@ -537,7 +549,7 @@ function TI30Xa_state(changes){
 			
 			// constant
 			case "pi":
-				next_state = push_number(Math.PI);
+				next_state = child({entry:''}).push_number(Math.PI);
 				break;
 			
 			// single variable functions
@@ -790,14 +802,8 @@ function TI30Xa_state(changes){
 		
 	function apply_pure_function(func){
 		const newstate = ensure_empty_entry();
-		const stack = [...newstate.stack];
-		let stacktop = stack.pop();
-		if(typeof(stacktop) !== 'number'){
-			stacktop = stack.pop();
-		}
-		const result = func(stacktop);
-		stack.push(result);
-		return newstate.child({stack}).catch_errors();
+		const result = func(newstate.top_number());
+		return newstate.push_number(result).catch_errors();
 	};
 	
 	function to_radians(angle){
@@ -872,13 +878,14 @@ function TI30Xa_state(changes){
 	};
 	
 	function drg_convert(){
-		const angle = to_radians(top_number());
-		const newstate = drg();
+		const oldstate = state.ensure_empty_entry();
+		const angle = to_radians(oldstate.top_number());
+		const newstate = oldstate.drg();
 		return newstate.push_number(newstate.from_radians(angle));
 	};
 	
 	function open_paren(){
-		const stack = [...state.stack];
+		const stack = [...state.ensure_empty_entry().stack];
 		if(typeof(stack.slice(-1)[0]) === 'number'){
 			stack.pop();
 		};
@@ -886,7 +893,7 @@ function TI30Xa_state(changes){
 			stack.pop();
 		};
 		stack.push('(', 0);
-		return child({stack});
+		return ensure_empty_entry().child({stack});
 	};
 	
 	function close_paren(){
@@ -907,7 +914,7 @@ function TI30Xa_state(changes){
 	};
 	
 	function catch_errors(){
-		const stack = state.stack
+		let stack = state.stack
 			.map(normalize_errors)
 			.map(function(x){
 				if(typeof(x) === 'number' && Math.abs(x)< 1e-99){
@@ -917,6 +924,9 @@ function TI30Xa_state(changes){
 		});
 		const overflow = Math.abs(top_number()) >= 1e100;
 		const error = (state.error || stack.includes(NaN) || overflow);
+		if(error){
+			stack = [0];
+		}
 		return child({error, stack});
 	};
 	
