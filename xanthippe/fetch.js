@@ -123,6 +123,15 @@ const decoding = {
 };
 Object.freeze(decoding);
 
+async function* iterDatabase(){
+	for await (const {buttons, screen} of readSessions()){
+		if (screen.length == 28){
+			const presses = buttons.split('').map(x => decoding[x]);
+			yield [presses, toText(screen)];
+		}
+	};
+};
+
 async function loadDatabase(){
 	const data = new Map();
 	for await (const {buttons, screen, requested} of readSessions()){
@@ -262,7 +271,8 @@ function boxify(str, length){
 
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+	console.log("Fetching the latest copy of the database...");
     await downloadDatabase();
 }
 
-export {loadDatabase, downloadDatabase};
+export {loadDatabase, iterDatabase};
