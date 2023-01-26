@@ -41,7 +41,10 @@ const SEGMENT_ENCODE = deepFreeze({
 	'n':{'a':false, 'b':false, 'c': true, 'd':false, 'e': true, 'f':false, 'g': true},
 });
 
-const BOOLEAN_INDICATORS = Object.freeze(['M1', 'M2', 'M3', '2nd', 'HYP', 'FIX', 'STAT', 'X', 'R', '()', 'K']);
+const INDICATORS = Object.freeze(
+    "M1,M2,M3,2nd,HYP,SCI,ENG,FIX,STAT,DE,G,RAD,X,R,(),K"
+	.split(',')
+);
 
 function set_visibility(object, value=true){
 	const visibility = value ? 'visible' : 'hidden';
@@ -81,98 +84,22 @@ function make_digit(segments, index){
 function make_display({indicators, mantissa_list, exponent_list}){
 	const mantissa = mantissa_list.map(make_digit);
 	const exponent = exponent_list.map(make_digit);
-	const display = {
-		set format(fmt){
-			if(!['SCI', 'ENG', 'FLO'].includes(fmt)){
-				throw('attempted to set display format to '+fmt);
-			}
-			set_visibility(indicators.SCI, fmt === 'SCI');
-			set_visibility(indicators.ENG, fmt === 'ENG');
-		},
-		set angle(fmt){
-			if(!['RAD', 'DEG', 'GRAD', ''].includes(fmt)){
-				throw('attempted to set angle format to '+fmt)
-			}
-			set_visibility(indicators.DE, fmt === 'DEG');
-			set_visibility(indicators.G, fmt === 'DEG' || fmt === 'GRAD');
-			set_visibility(indicators.RAD, fmt === 'GRAD' || fmt === 'RAD');
-		},
-		set mantissa(str){
-			const negative = str.includes('-') ? '-' : ' ';
-			const has_dp = str.includes('.');
-			str = str.replace('-', '');
-			const dp = 11+str.indexOf('.')-str.length;
-			str = str.replace('.', '');
-			str = negative + str;
-			str = str.padStart(11, ' ');
-			mantissa.forEach((m, i) => m.set_showing(str[i]));
-			mantissa.slice(1).forEach(m => m.set_dp(false));
-			if(has_dp){
-				mantissa[dp].set_dp(true);
-			}			
-		},
-		set exponent(str){
-			if(str.replace(' ', '') === ''){
-				exponent.forEach(d => d.set_showing(' '));
-			} else {
-				const negative = str.includes('-') ? '-' : ' ';
-				str = negative + str.replace('-', '').padStart(2, '0');
-				exponent.forEach((d, i) => d.set_showing(str[i]));
-			}
-		},
-	};
-	for(const indicator of BOOLEAN_INDICATORS){
-		Object.defineProperty(display, indicator, {
-			set: function(value){
-				set_visibility(indicators[indicator], value); 
-				}
-		});
-	}
+	const display = {};
 	
-	display.update = function update(calculator_state){	
-		// TODO: show memory, fix, stat, x, r, k
+	display.update = function update(calculator_state){		
+		const [row1, row2] = calculator_state.to_text_display().split('\n').slice(1, 3);
 		
-		let displayed = calculator_state.shown_number();
-		
-		if(displayed === 'blank'){
-			for(const indicator of BOOLEAN_INDICATORS){
-				display[indicator] = false;
-			}
-			display.angle = '';
-			display.format = 'FLO';
-			display.mantissa = '';
-			display.exponent = '';
-			return;
+		let position = 1;
+		for (const ind of INDICATORS){
+			set_visibility(indicators[ind], row1.slice(position, position+ind.length) === ind);
+			position += ind.length;
 		}
 		
-		// TODO: include logic for this
-		for(const indicator of 'FIX STAT X R K'.split(' ')){
-			display[indicator] = false;
-		}
-		display.format = calculator_state.formatmode;
-		
-		display['2nd'] = calculator_state.second;
-		display['()'] = calculator_state.stack.includes('(');
-		display.HYP = calculator_state.hyperbolic;
-		display.angle = calculator_state.anglemode;
-		display.M1 = calculator_state.memory[0] !== 0;
-		display.M2 = calculator_state.memory[1] !== 0;
-		display.M3 = calculator_state.memory[2] !== 0;
-		
-		if(displayed === "Error"){
-			display.exponent = '';
-			display.mantissa = 'Error  ';
-			return;
-		}
-		if(!displayed.includes('e')){
-			display.exponent = '';
-			display.mantissa = displayed;
-		} else {
-			// depending on the sign of the exponent, the e could end up in either part
-			display.exponent = displayed.slice(-3).replace('e', '');
-			display.mantissa = displayed.slice(0,-3).replace('e', '');
-		}
-		return
+		mantissa.forEach((m, i) => {
+			if(m.set_dp) {m.set_dp(row2[2+2*i] === '.')};
+			m.set_showing(row2[1+2*i]);
+		});
+		exponent.forEach((e, i) => e.set_showing(row2[34+i]));
 	}
 	
 	return Object.freeze(display);
