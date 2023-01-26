@@ -1,7 +1,7 @@
 import {BUTTON_LABELS} from './button_parse.js';
 
 const encoding = {
-  "+/-": "A",
+  "+-": "A",
   "2nd": "B",
   "+": "C",
   "0": "D",
