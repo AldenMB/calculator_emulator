@@ -409,6 +409,18 @@ const TESTS = Object.freeze([
 	name: "two times pi",
 	sequence: "2 * pi =",
 	check: display_is("6.283185307"),
+},{
+	name: "enormous combination functions",
+	sequence: "1 4 0 2nd 8 7 0 =",
+	check: display_is("9.38209697e 40"),
+},{
+	name: "biggest combination function",
+	sequence: "3 3 6 2nd 8 1 6 8 =",
+	check: display_is("6.088717586e 99"),
+},{
+	name: "combination overflow",
+	sequence: "3 3 8 2nd 8 1 6 9 =",
+	check: is_error,
 }
 ]);
 
@@ -438,6 +450,9 @@ function run_all_tests(verbose=false){
 		.filter(result => !result.success)
 	);
 	const message = `passed ${TESTS.length - failures.length} tests, failed ${failures.length}.`
+	for( const {reason, test, calculator} of failures){
+		console.log(`test ${test.name} failed with reason ${reason}`);
+	}
 	return {message, failures};
 };
 
