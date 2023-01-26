@@ -383,6 +383,9 @@ function TI30Xa_state(changes){
 			return state.child({entry});
 		}
 		entry = entry.slice(0, -1);
+		if (entry === '-0'){
+			entry = '0';
+		}
 		return state.child({entry});
 	}
 	
