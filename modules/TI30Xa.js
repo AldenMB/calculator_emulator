@@ -140,6 +140,9 @@ function apply_binary_op(a, op, b){
 			}
 			return a**b;
 		case BINARY_OPS.root:
+			if (a === 0 && b === 0){
+				return NaN;
+			}
 			return a**(1/b);
 		case BINARY_OPS.permute:
 			return permutation(a, b);
@@ -295,9 +298,10 @@ function TI30Xa_state(changes){
 		if(scientific){
 			const mantissa = number * 10**(-exponent);
 			const mantissa_str = clear_trailing_zeros(mantissa.toFixed(9));
-			return negative + mantissa_str + 'e' + exponent;
+			const exponent_str = (exponent<0? '-':' ') + Math.abs(exponent).toString().padStart(2, '0');
+			return negative + mantissa_str + 'e' + exponent_str;
 		}
-		if(!String(number).includes('.')){
+		if(!String(number).includes('.')  && !String(number).includes('e')){
 			return negative+String(number)+'.';
 		}
 		const precision = (exponent>0) ? 9-exponent : 9;
@@ -413,8 +417,8 @@ function TI30Xa_state(changes){
 		return (
 			newstate
 			.ensure_empty_entry()
-			.reduce_binary_op()
 			.pop_binary_op()
+			.reduce_binary_op()
 			.catch_errors()
 		);
 	};
