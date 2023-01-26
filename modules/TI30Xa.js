@@ -224,7 +224,7 @@ const DEFAULT_STATE = Object.freeze({
 function TI30Xa_state(changes){
 	// This produces an immutable object. Its methods should all produce
 	// new objects of the same type. Other modules should only need
-	// the push_button method or to_html.
+	// the push_button method or to_text_display.
 	
 	const public_methods = {
 		push_button,
@@ -240,7 +240,6 @@ function TI30Xa_state(changes){
 		catch_errors,
 		equals,
 		close_paren,
-		shown_number,
 		from_radians,
 		drg,
 	};
