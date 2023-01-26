@@ -223,7 +223,7 @@ function TI30Xa_state(changes){
 		// produce an output like the following:
 		// ┌────────────────────────────────────┐
 		// │M1M2M32ndHYPSCIENGFIXSTATDEGRADXR()K│
-		// │-8.8.8.8.8.8.8.8.8.8.            -88│
+		// │- 8.8.8.8.8.8.8.8.8.8.           -88│
 		// └────────────────────────────────────┘
 		
 		if (!state.on){
