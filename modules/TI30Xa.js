@@ -79,6 +79,9 @@ function factorial(x){
 	if(x === 0){
 		return 1;
 	};
+	if(x > 69){
+		return NaN;
+	};
 	return x * factorial(x-1);
 };
 
@@ -465,7 +468,7 @@ function TI30Xa_state(changes){
 	
 	function on(){
 		if (state.entry === '' || !state.on){
-			return child({on:true, stack:[0], entry:'', error:false});
+			return child({on:true, stack:[0], error:false});
 		} else {
 			return child({entry:''}).push_number(0);
 		}			
@@ -473,7 +476,7 @@ function TI30Xa_state(changes){
 	
 	function off(){
 		//TODO: clear statistical register
-		return child({on:false});
+		return child({on:false, entry:'', anglemode:ANGLE_MODES.degrees});
 	};
 	
 	////////////////////////////////
