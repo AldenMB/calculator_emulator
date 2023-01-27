@@ -112,7 +112,7 @@ function permutation(n, r){
 	if(r > n){
 		return 0;
 	};
-	if(n < 100){
+	if(r < 100){
 		return (
 			[...Array(r).keys()]
 			.map(x => x + n - r + 1)
