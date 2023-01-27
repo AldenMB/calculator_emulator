@@ -25,7 +25,7 @@ function calcTree(state = TI30Xa().now()){
 
 let conflicts = 0;
 let successes = 0;
-const maxConflicts = 4;
+const maxConflicts = 8;
 const exclusions = ['SIN', 'COS', 'TAN'];
 const calc = calcTree();
 
