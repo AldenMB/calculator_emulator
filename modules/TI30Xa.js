@@ -230,6 +230,7 @@ function TI30Xa_state(changes){
 		push_button,
 		child,
 		to_text_display,
+		shown_number,
 		ensure_empty_entry,
 		to_html,
 		reduce_binary_op,
