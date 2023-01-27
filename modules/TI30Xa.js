@@ -112,7 +112,7 @@ function permutation(n, r){
 	if(r > n){
 		return 0;
 	};
-	if(n < 50){
+	if(n < 100){
 		return (
 			[...Array(r).keys()]
 			.map(x => x + n - r + 1)
@@ -133,7 +133,7 @@ function combination(n, r){
 	if(r > n/2){
 		r = n - r;
 	};
-	if(n<50){
+	if(n<100){
 		return permutation(n, r) / factorial(r);
 	} else {
 		return  Math.exp(loggamma(n+1) - loggamma(r+1) - loggamma(n-r+1));
