@@ -58,8 +58,10 @@ function floating_epsilon(x){
 };
 
 function clear_trailing_zeros(str){
-	while(str.slice(-1) === '0'){
-		str = str.slice(0, -1);
+	if (str.includes('.')){
+		while(str.slice(-1) === '0'){
+			str = str.slice(0, -1);
+		}
 	}
 	return str;
 };
