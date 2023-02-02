@@ -137,6 +137,21 @@ function combination(n, r){
 	
 };
 
+const PreciseDecimal = Decimal.clone({precision:50});
+const PreciseConversionFactor = PreciseDecimal.acos(-1).dividedBy(180);
+
+function cos_degrees(x){
+	return new Decimal(PreciseConversionFactor.times(x).cos());
+};
+
+function sin_degrees(x){
+	return new Decimal(PreciseConversionFactor.times(x).sin());
+};
+
+function tan_degrees(x){
+	return new Decimal(PreciseConversionFactor.times(x).tan());
+};
+
 function second_map(label){
 	const index = BUTTON_LABELS.flat().indexOf(label);
 	if(index === -1){
@@ -889,6 +904,10 @@ function TI30Xa_state(changes){
 		return angle.dividedBy(to_radians(ONE));
 	};
 	
+	function from_degrees(angle){
+		return angle.dividedBy(to_degrees(ONE));
+	};
+	
 	function cos(angle){
 		angle = trig_overflow_protect(angle);
 		const degree = to_degrees(angle);
@@ -903,7 +922,7 @@ function TI30Xa_state(changes){
 		if(degree.minus(90).modulo(360).minus(90).absoluteValue().lessThan(1e-12)){
 			return ONE.negated();
 		}
-		return Decimal.cos(to_radians(angle));
+		return cos_degrees(degree);
 		
 	};
 	
@@ -920,7 +939,7 @@ function TI30Xa_state(changes){
 		if(degree.modulo(360).minus(270).absoluteValue().lessThan(1e-12)){
 			return ONE.negated();
 		}
-		return Decimal.sin(to_radians(angle));		
+		return sin_degrees(degree);	
 	};
 	
 	function tan(angle){
@@ -944,7 +963,8 @@ function TI30Xa_state(changes){
 		){
 			return NAN;
 		}
-		return Decimal.tan(to_radians(angle));		
+		
+		return tan_degrees(degree);
 	};
 	
 	function drg(){
