@@ -154,6 +154,18 @@ function tan_degrees(x){
 	return new Decimal(PreciseConversionFactor.times(x).tan());
 };
 
+function cosh(x){
+	return x.exp().plus(x.negated().exp()).dividedBy(2);
+};
+
+function sinh(x){
+	return x.exp().minus(x.negated().exp()).dividedBy(2);
+};
+
+function tanh(x){
+	return sinh(x).dividedBy(cosh(x));
+};
+
 function second_map(label){
 	const index = BUTTON_LABELS.flat().indexOf(label);
 	if(index === -1){
@@ -662,13 +674,13 @@ function TI30Xa_state(changes){
 				next_state = apply_pure_function(x => from_radians(PreciseDecimal.atan(x)));
 				break;
 			case "SINH":
-				next_state = apply_pure_function(x => Decimal.sinh(x));
+				next_state = apply_pure_function(sinh);
 				break;
 			case "COSH":
-				next_state = apply_pure_function(x => Decimal.cosh(x));
+				next_state = apply_pure_function(cosh);
 				break;
 			case "TANH":
-				next_state = apply_pure_function(x => Decimal.tanh(x));
+				next_state = apply_pure_function(tanh);
 				break;
 			case "ASINH":
 				next_state = apply_pure_function(x => Decimal.asinh(x));
