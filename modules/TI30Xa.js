@@ -139,6 +139,7 @@ function combination(n, r){
 
 const PreciseDecimal = Decimal.clone({precision:50});
 const PreciseConversionFactor = PreciseDecimal.acos(-1).dividedBy(180);
+const PreciseONE = new PreciseDecimal(1);
 
 function cos_degrees(x){
 	return new Decimal(PreciseConversionFactor.times(x).cos());
@@ -651,13 +652,13 @@ function TI30Xa_state(changes){
 				next_state = apply_pure_function(tan);
 				break;
 			case "ASIN":
-				next_state = apply_pure_function(x => from_radians(Decimal.asin(x)));
+				next_state = apply_pure_function(x => from_radians(PreciseDecimal.asin(x)));
 				break;
 			case "ACOS":
-				next_state = apply_pure_function(x => from_radians(Decimal.acos(x)));
+				next_state = apply_pure_function(x => from_radians(PreciseDecimal.acos(x)));
 				break;
 			case "ATAN":
-				next_state = apply_pure_function(x => from_radians(Decimal.atan(x)));
+				next_state = apply_pure_function(x => from_radians(PreciseDecimal.atan(x)));
 				break;
 			case "SINH":
 				next_state = apply_pure_function(x => Decimal.sinh(x));
@@ -901,7 +902,7 @@ function TI30Xa_state(changes){
 	};
 	
 	function from_radians(angle){
-		return angle.dividedBy(to_radians(ONE));
+		return angle.dividedBy(to_radians(PreciseONE)).toSignificantDigits(14);
 	};
 	
 	function from_degrees(angle){
@@ -913,7 +914,7 @@ function TI30Xa_state(changes){
 		const degree = to_degrees(angle);
 		
 		
-		if(degree.modulo(180).minus(90).absoluteValue().lessThan(1e-12)){
+		if(degree.modulo(180).minus(90).absoluteValue().lessThan(1e-10)){
 			return ZERO;
 		}
 		if(degree.plus(90).modulo(360).minus(90).absoluteValue().lessThan(3e-5)){
