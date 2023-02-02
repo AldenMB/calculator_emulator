@@ -6,8 +6,9 @@ Decimal.set({
 	rounding: Decimal.ROUND_HALF_UP,
 	minE: -99,
 	maxE: 99,
-	toExpNeg: -9,
+	toExpNeg: -10,
 	toExpPos: 10,
+	modulo: Decimal.ROUND_FLOOR,
 });
 
 function boxify(str, length){
