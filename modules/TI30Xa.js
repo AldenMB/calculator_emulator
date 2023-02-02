@@ -163,7 +163,8 @@ function sinh(x){
 };
 
 function tanh(x){
-	return sinh(x).dividedBy(cosh(x));
+	const y = x.times(2).negated().exp();
+	return ONE.minus(y).dividedBy(ONE.plus(y));
 };
 
 function second_map(label){
