@@ -411,12 +411,7 @@ const TESTS = Object.freeze([
 	name: "combination overflow",
 	sequence: "3 3 8 2nd 8 1 6 9 =",
 	check: is_error,
-}
-]);
-
-
-//// floating point representation tests
-/*
+},{
 	name: "ternary fractions not represented exactly",
 	sequence: "1 / 3 * 3 = 2nd 3",
 	check: is_error,
@@ -427,12 +422,13 @@ const TESTS = Object.freeze([
 },{
 	name: "eleven rounding error",
 	sequence: "1 1 / 2 y^x 2 0 + 1 - 1 = * 2 y^x 2 0 - 1 1 =",
-	check: number_on_stack_is(0.000_000_02),
+	check: display_is('0.00000002'),
 },{
 	name: "trig functions accurate to ten places",
 	sequence: "8 9 . 9 9 9 9 9 9 9 9 TAN",
 	check: display_is("5729577951."),
-*/
+}
+]);
 
 function run_all_tests(verbose=false){
 	const failures = (TESTS
