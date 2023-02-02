@@ -40,16 +40,6 @@ function stack_is(stack){
 	return are_equal;
 };
 
-function number_on_stack_is(number){
-	function are_equal(calc){
-		const actual_number = calc.now().top_number();
-		const success = close(actual_number, number);
-		const reason = `expected number ${JSON.stringify(number)}, but got ${JSON.stringify(actual_number)}`;
-		return {success, reason};
-	};
-	return are_equal;
-};
-
 function is_error(calc){
 	const success = calc.now().error;
 	const reason = 'expected to be in an error state';
@@ -140,7 +130,7 @@ const TESTS = Object.freeze([
 },{
 	name: "empty sign flip",
 	sequence: "+-",
-	check: number_on_stack_is(0),
+	check: display_is("0."),
 },{
 	name: "flip entry sign back",
 	sequence: "1 2 3 +- +-",
@@ -152,31 +142,31 @@ const TESTS = Object.freeze([
 },{
 	name: "flip stack sign",
 	sequence: "1 2 3 = +-",
-	check: number_on_stack_is(-123),
+	check: display_is("-123."),
 },{
 	name: "dig through stack for sign flip",
 	sequence: "1 + +-",
-	check: number_on_stack_is(-1),
+	check: display_is("-1."),
 },{
 	name: "simple addition",
 	sequence: "2 + 3 =",
-	check: number_on_stack_is(5),
+	check: display_is("5."),
 },{
 	name: "repeated addition",
 	sequence: "2 + 3 + 5 =",
-	check: number_on_stack_is(10),
+	check: display_is("10."),
 },{
 	name: "mixed operations",
 	sequence: "2 + 5 - 1 2 + 1 =",
-	check: number_on_stack_is(-4),
+	check: display_is("-4."),
 },{
 	name: "multiplication comes before addition",
 	sequence: "2 + 2 / 2 =",
-	check: number_on_stack_is(3),
+	check: display_is("3."),
 },{
 	name: "arcsin",
 	sequence: ". 5 2nd SIN",
-	check: number_on_stack_is(30),
+	check: display_is("30."),
 },{
 	name: "divide by zero",
 	sequence: "1 / 0 =",
@@ -184,47 +174,47 @@ const TESTS = Object.freeze([
 },{
 	name: "cosh",
 	sequence: "1 HYP COS",
-	check: number_on_stack_is(Math.cosh(1)),
+	check: display_is("1.543080635"),
 },{
 	name: "multiply percent",
 	sequence: "5 0 0 %",
-	check: number_on_stack_is(5),
+	check: display_is("5."),
 },{
 	name: "adding percent",
 	sequence: "2 5 + 1 6 %",
-	check: number_on_stack_is(4),
+	check: display_is("4."),
 },{
 	name: "add on percent",
 	sequence:  "2 5 + 1 6 % =",
-	check: number_on_stack_is(29),
+	check: display_is("29."),
 },{
 	name: "permutations simple",
 	sequence: "9 2nd 9 3 =",
-	check: number_on_stack_is(504),
+	check: display_is("504."),
 },{
 	name: "combinations simple",
 	sequence: "1 2 2nd 8 4 =",
-	check: number_on_stack_is(495),
+	check: display_is("495."),
 },{
 	name: "combinatorials precede multiplication",
 	sequence: "2 * 5 2nd 8 3 =",
-	check: number_on_stack_is(20),
+	check: display_is("20."),
 },{
 	name: "exponents precede division",
 	sequence: "2 0 0 / 2 y^x 3 =",
-	check: number_on_stack_is(25),
+	check: display_is("25."),
 },{
 	name: "combinatorials precede exponents",
 	sequence: "2 y^x 4 2nd 9 2 =",
-	check: number_on_stack_is(4096),
+	check: display_is("4096."),
 },{
 	name: "equal precedence evaluates immediately",
 	sequence: "6 / 2 / 3 =",
-	check: number_on_stack_is(1),
+	check: display_is("1."),
 },{
 	name: "short percent imputation",
 	sequence: "2 0 + % =",
-	check: number_on_stack_is(24),
+	check: display_is("24."),
 },{
 	name: "log of negative",
 	sequence: "1 +- LN",
@@ -240,15 +230,15 @@ const TESTS = Object.freeze([
 },{
 	name: "parentheses card example partial",
 	sequence: "5 y^x ( 1 . 8 3 + 3 )",
-	check: number_on_stack_is(4.83),
+	check: display_is("4.83"),
 },{
 	name: "parentheses card example complete",
 	sequence: "5 y^x ( 1 . 8 3 + 3 ) =",
-	check: number_on_stack_is(2376.977774),
+	check: display_is("2376.977774"),
 },{
 	name: "radians mode sine",
 	sequence: "pi / 2 = DRG SIN",
-	check: number_on_stack_is(1),
+	check: display_is("1."),
 },{
 	name: "reject repeat openparens",
 	sequence: "( (",
@@ -280,7 +270,7 @@ const TESTS = Object.freeze([
 },{
 	name: "close parenthesis behaves like equals",
 	sequence: "3 + 2 )",
-	check: stack_is([5]),
+	check: display_is("5."),
 },{
 	name: "overflow",
 	sequence: "1 EE 9 9 * 1 0 =",
@@ -332,7 +322,7 @@ const TESTS = Object.freeze([
 },{
 	name: "plus triggers division on stack",
 	sequence: "1 0 0 / 2 y^x 2 +",
-	check: number_on_stack_is(25),
+	check: display_is("25."),
 },{
 	name: "recover stored number",
 	sequence: "5 STO 1 ON/C RCL 1",
