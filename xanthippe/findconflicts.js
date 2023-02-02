@@ -38,12 +38,13 @@ for await (const [sequence, screen] of iterDatabase()){
 		continue;
 	}
 	try {
-		process.stdout.write(`${successes}\t${conflicts}\t${skipped}\r`);
+		process.stdout.write(`${conflicts}\t${successes}\t${skipped}\r`);
 		const computed = calc.get(sequence);
 		if(computed === screen){
 			successes++;
 		} else {
 			conflicts++;
+			console.log('')
 			console.log(sequence.join(' -> '));
 			console.log('Computed:');
 			console.log(computed);
