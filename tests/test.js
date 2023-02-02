@@ -1,4 +1,4 @@
-import {TI30Xa, array_equal, BINARY_OPS} from '../modules/TI30Xa.js';
+import {TI30Xa} from '../modules/TI30Xa.js';
 
 function close(a, b){
 	// this formula shamelessly stolen from numpy.allclose:
@@ -15,7 +15,7 @@ function run_test(test){
 		({success, reason} = check(calculator));
 	} catch(error) {
 		success = false;
-		reason = `error ${JSON.stringify(error)} arose during test`;
+		reason = `error ${JSON.stringify(error.name)} arose during test: ${error.message}`;
 	}
 	return {success, reason, test, calculator};
 }
@@ -33,7 +33,7 @@ function entry_is(entry){
 function stack_is(stack){
 	function are_equal(calc){
 		const actual_stack = calc.now().stack;
-		const success = array_equal(stack, actual_stack);
+		const success = stack.every((x, i) => x === actual_stack[i].toString());
 		const reason = `expected stack ${JSON.stringify(stack)}, but got ${JSON.stringify(actual_stack)}`;
 		return {success, reason};
 	}
@@ -242,31 +242,31 @@ const TESTS = Object.freeze([
 },{
 	name: "reject repeat openparens",
 	sequence: "( (",
-	check: stack_is(['(', 0]),
+	check: stack_is(['(', "0"]),
 },{
 	name: "nested parentheses partial resolution",
 	sequence: "5 * ( 7 - ( 2 + 3 )",
-	check: stack_is([5, '*', '(', 7, '-', 5]),
+	check: stack_is(['5', '*', '(', '7', '-', '5']),
 },{
 	name: "nested parentheses full resolution",
 	sequence: "5 * ( 7 - ( 2 + 3 =",
-	check: stack_is([10]),
+	check: stack_is(['10']),
 },{
 	name: "parentheses places a zero",
 	sequence: "1 + (",
-	check: stack_is([1,'+','(',0]),
+	check: stack_is(['1','+','(','0']),
 },{
 	name: "power",
 	sequence: "2 y^x 1 0 =",
-	check: stack_is([1024]),
+	check: display_is("1024."),
 },{
 	name: "deep nested parentheses",
 	sequence: "8 nCr ( 8 1 xROOTy ( 1 0 0 / ( 1 6 + 9 =",
-	check: stack_is([56]),
+	check: display_is("56."),
 },{
 	name: "deep order of operations",
 	sequence: "1 EE 7 - 7 * 3 y^x 4 2nd 9 2 =",
-	check: stack_is([6279913]),
+	check: display_is("6279913."),
 },{
 	name: "close parenthesis behaves like equals",
 	sequence: "3 + 2 )",
@@ -402,11 +402,11 @@ const TESTS = Object.freeze([
 },{
 	name: "enormous combination functions",
 	sequence: "1 4 0 2nd 8 7 0 =",
-	check: display_is("9.38209697e 40"),
+	check: display_is("9.38209697e+40"),
 },{
 	name: "biggest combination function",
 	sequence: "3 3 6 2nd 8 1 6 8 =",
-	check: display_is("6.088717586e 99"),
+	check: display_is("6.088717586e+99"),
 },{
 	name: "combination overflow",
 	sequence: "3 3 8 2nd 8 1 6 9 =",
@@ -441,7 +441,7 @@ function run_all_tests(verbose=false){
 	);
 	const message = `passed ${TESTS.length - failures.length} tests, failed ${failures.length}.`
 	for( const {reason, test, calculator} of failures){
-		console.log(`test ${test.name} failed with reason ${reason}`);
+		console.log(`test ${test.name} failed with reason ${reason}. \n\tsequence:${test.sequence}`);
 	}
 	return {message, failures};
 };
