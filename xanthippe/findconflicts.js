@@ -33,12 +33,15 @@ const calc = calcTree();
 
 console.log('searching...');
 for await (const [sequence, screen] of iterDatabase()){
+	process.stdout.write(`${conflicts}\t${successes}\t${skipped}\r`);
 	if(sequence.some(x => exclusions.includes(x))){
 		skipped += 1;
 		continue;
 	}
 	try {
-		process.stdout.write(`${conflicts}\t${successes}\t${skipped}\r`);
+		process.stdout.write(
+			`${conflicts}\t${successes}\t${skipped}\t${sequence.join(' >>> ')}              \r`
+		);
 		const computed = calc.get(sequence);
 		if(computed === screen){
 			successes++;
