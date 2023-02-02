@@ -35,5 +35,5 @@ This project is far from done! additional tasks include:
 
 ## new features
 
- - use the same base-10 floating point representation which the calculator uses, so it behaves exactly identical even in later decimal places.
+ - use the same base-10 floating point representation which the calculator uses, so it behaves exactly identical even in later decimal places. My current plan is to use [`decimal.js`](https://github.com/MikeMcl/decimal.js/).
  - add a mode to show my proposal for the perfect pocket calculator. It should be almost identical, but it should do away with the polar subsystem and use the three freed-up buttons to add some conspicuously-missing functions: modulus, normal CDF, and inverse normal CDF. There is an open spot already on the 2nd function of the +/- key, so we can even have one more function for free. Why not a uniform random number generator? Also, it should allow fractions in more contexts -- I should be able to square or reciprocal a fraction without it being converted to a decimal.
