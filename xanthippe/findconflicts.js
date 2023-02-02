@@ -40,7 +40,7 @@ for await (const [sequence, screen] of iterDatabase()){
 	}
 	try {
 		process.stdout.write(
-			`${conflicts}\t${successes}\t${skipped}\t${sequence.map(x => x.toString().padEnd(5, ' ')).join(' >> ')}              \r`
+			`${conflicts}\t/${successes}\t/${skipped}\t  >>>\t${sequence.map(x => x.toString().padEnd(6, ' ')).join(' >> ')}\r`
 		);
 		const computed = calc.get(sequence);
 		if(computed === screen){
