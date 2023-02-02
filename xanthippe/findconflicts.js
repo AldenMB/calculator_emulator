@@ -25,6 +25,7 @@ function calcTree(state = TI30Xa().now()){
 
 let conflicts = 0;
 let successes = 0;
+let skipped = 0;
 const maxConflicts = 8;
 const exclusions = [];
 const calc = calcTree();
@@ -33,10 +34,11 @@ const calc = calcTree();
 console.log('searching...');
 for await (const [sequence, screen] of iterDatabase()){
 	if(sequence.some(x => exclusions.includes(x))){
+		skipped += 1;
 		continue;
 	}
 	try {
-		process.stdout.write(`${successes}\r`);
+		process.stdout.write(`${successes}\t${conflicts}\t${skipped}\r`);
 		const computed = calc.get(sequence);
 		if(computed === screen){
 			successes++;
@@ -53,10 +55,11 @@ for await (const [sequence, screen] of iterDatabase()){
 			break;
 		}
 	} catch(error) {
+		skipped += 1;
 		if (error.error !== 'not implemented'){
 			throw error;
 		}
 	}
 }
 
-console.log(`Found ${successes} successes before ${maxConflicts} conflicts were discovered`);
+console.log(`Found ${successes} successes before ${maxConflicts} conflicts were discovered, skipping ${skipped}.`);
