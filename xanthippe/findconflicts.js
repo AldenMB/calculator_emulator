@@ -40,7 +40,7 @@ for await (const [sequence, screen] of iterDatabase()){
 	}
 	try {
 		process.stdout.write(
-			`${conflicts}\t${successes}\t${skipped}\t${sequence.join(' >>> ')}              \r`
+			`${conflicts}\t${successes}\t${skipped}\t${sequence.map(x => x.toString().padEnd(5, ' ')).join(' >> ')}              \r`
 		);
 		const computed = calc.get(sequence);
 		if(computed === screen){
@@ -48,7 +48,7 @@ for await (const [sequence, screen] of iterDatabase()){
 		} else {
 			conflicts++;
 			console.log('')
-			console.log(sequence.join(' -> '));
+			console.log(sequence.join(' >> '));
 			console.log('Computed:');
 			console.log(computed);
 			console.log('Measured:');
