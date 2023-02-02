@@ -2,7 +2,7 @@ import {TI30Xa, array_equal} from '../modules/TI30Xa.js';
 import {run_all_tests} from '../tests/test.js';
 import {loadDatabase, iterDatabase} from './fetch.js';
 
-console.log(run_all_tests());
+console.log(run_all_tests().message);
 
 function calcTree(state = TI30Xa().now()){
 	const cache = new Map();

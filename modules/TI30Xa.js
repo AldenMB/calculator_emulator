@@ -1,4 +1,14 @@
 import {BUTTON_LABELS, SECOND_LABELS} from "./button_parse.js";
+import {Decimal} from "./decimal.mjs";
+
+Decimal.set({
+	precision: 14, 
+	rounding: Decimal.ROUND_HALF_UP,
+	minE: -99,
+	maxE: 99,
+	toExpNeg: -9,
+	toExpPos: 10,
+});
 
 function boxify(str, length){
 	const header = '┌' + '─'.repeat(length) + '┐\n│';
@@ -41,13 +51,6 @@ function array_equal(arr1, arr2){
 	return arr1.every((elt, i) => elt === arr2[i]);
 };
 
-function normalize_errors(num){
-	if([Infinity, -Infinity, null, undefined].includes(num)){
-		return NaN;
-	};
-	return num;
-};
-
 function mod(n, d){
 	return ((n%d)+d)%d;
 };
@@ -66,25 +69,17 @@ function clear_trailing_zeros(str){
 	return str;
 };
 
-function is_integer(number){
-	const remainder = mod(number, 1);
-	return remainder <= 1e-14*number;
-};
-
 function factorial(x){
-	if(x<0){
-		return NaN;
+	if(x.isZero()){
+		return ONE;
 	};
-	if(!is_integer(x)){
-		return NaN;
+	if(x.isNegative() || !x.isInteger()){
+		return NAN;
 	};
-	if(x === 0){
-		return 1;
+	if(x.greaterThan(69)){
+		return NAN;
 	};
-	if(x > 69){
-		return NaN;
-	};
-	return x * factorial(x-1);
+	return x.times(factorial(x.minus(1)));
 };
 
 // even bernoulli numbers B2,B4,B6,...
@@ -95,6 +90,7 @@ const BERNOULLI = [
 
 function loggamma(z){
 	// formula 6.1.40 of Handbook of Mathematical Functions
+	z = z.toNumber()
 	return (
 		(z-1/2)*Math.log(z) 
 		- z
@@ -106,37 +102,37 @@ function loggamma(z){
 };
 
 function permutation(n, r){
-	if(r < 0 || n < 0 || !is_integer(r) || !is_integer(n)){
-		return NaN;
+	if(r.isNegative() || n.isNegative() || !r.isInteger() || !n.isInteger()){
+		return NAN;
 	};
-	if(r > n){
-		return 0;
+	if(r.greaterThan(n)){
+		return ZERO;
 	};
-	if(r < 100){
+	if(r.lessThan(100)){
 		return (
-			[...Array(r).keys()]
-			.map(x => x + n - r + 1)
-			.reduce(((x,y) => x*y), 1)
+			[...Array(r.toNumber()).keys()]
+			.map(x => n.plus(x+1).minus(r))
+			.reduce(((x,y) => x.times(y)), ONE)
 		);
 	}
-	return Math.exp(loggamma(n+1) - loggamma(r+1));
+	return Decimal.exp(loggamma(n.plus(1)) - loggamma(r.plus(1)));
 
 };
 
 function combination(n, r){
-	if(r < 0 || n < 0 || !is_integer(r) || !is_integer(n)){
-		return NaN;
+	if(r.isNegative() || n.isNegative() || !r.isInteger() || !n.isInteger()){
+		return NAN;
 	};
-	if(r > n){
-		return 0;
+	if(r.greaterThan(n)){
+		return ZERO;
 	};
-	if(r > n/2){
-		r = n - r;
+	if(r.times(2).greaterThan(n)){
+		r = n.minus(r);
 	};
-	if(n<100){
-		return permutation(n, r) / factorial(r);
+	if(n.lessThan(100)){
+		return permutation(n, r).dividedBy(factorial(r));
 	} else {
-		return  Math.exp(loggamma(n+1) - loggamma(r+1) - loggamma(n-r+1));
+		return  Decimal.exp(loggamma(n.plus(1)) - loggamma(r.plus(1)) - loggamma(n.minus(r).plus(1)));
 	}
 	
 };
@@ -159,23 +155,23 @@ function hyperbolic_map(label){
 function apply_binary_op(a, op, b){
 	switch(op){
 		case BINARY_OPS.plus:
-			return a+b;
+			return a.plus(b);
 		case BINARY_OPS.minus:
-			return a-b;
+			return a.minus(b);
 		case BINARY_OPS.times:
-			return a*b;
+			return a.times(b);
 		case BINARY_OPS.divide:
-			return a/b;
+			return a.dividedBy(b);
 		case BINARY_OPS.power:
-			if (a === 0 && b === 0){
-				return NaN;
+			if (a.isZero() && b.isZero()){
+				return NAN;
 			}
-			return a**b;
+			return a.toPower(b);
 		case BINARY_OPS.root:
-			if (a === 0 && b === 0){
-				return NaN;
+			if (a.isZero() && b.isZero()){
+				return NAN;
 			}
-			return a**(1/b);
+			return a.toPower(ONE.dividedBy(b));
 		case BINARY_OPS.permute:
 			return permutation(a, b);
 		case BINARY_OPS.combine:
@@ -208,10 +204,16 @@ function is_binary_op(op){
 	return Object.values(BINARY_OPS).includes(op);
 };
 
+const ZERO = new Decimal(0);
+const ONE = new Decimal(1);
+const PI = Decimal.acos(-1);
+const TEN = new Decimal(10);
+const NAN = new Decimal(NaN);
+
 const DEFAULT_STATE = Object.freeze({
-	stack: Object.freeze([0]),
+	stack: Object.freeze([ZERO]),
 	entry: '',
-	memory: Object.freeze([0, 0, 0]),
+	memory: Object.freeze([ZERO, ZERO, ZERO]),
 	memorymode: '',
 	error: false,
 	second: false,
@@ -271,7 +273,7 @@ function TI30Xa_state(changes){
 		
 		const memory = ('M1,M2,M3'
 			.split(',')
-			.map( (x, i) => state.memory[i] === 0? '  ' : x)
+			.map( (x, i) => state.memory[i].isZero()? '  ' : x)
 			.join('')
 		);
 		const second = state.second? '2nd' : '   ';
@@ -305,7 +307,7 @@ function TI30Xa_state(changes){
 			.map((x, i) => x+(i===dp_idx ? '.' : ' '))
 			.join('')
 		);
-		return boxify(topline + interlaced + (exponent || '').padStart(14, ' '), 36);
+		return boxify(topline + interlaced + (exponent || '').replace('+', ' ').padStart(14, ' '), 36);
 	};
 	
 	function shown_number(){
@@ -319,6 +321,24 @@ function TI30Xa_state(changes){
 			return state.entry;
 		}
 		let number = top_number();
+		
+		if(!(number instanceof Decimal)){
+			console.log('no Decimal on the stack: ',JSON.stringify(state.stack));
+			return 'BADDECIMAL';
+		};
+		
+		
+		let s = number.toSignificantDigits(10).toString();
+		if(s.slice(0,2) === '0.' || s.slice(0,3) === '-0.'){
+			s = clear_trailing_zeros(number.toFixed(9));
+		}
+		if(!s.includes('.')){
+			let [m, e] = s.split('e');
+			e = e ? 'e' + e : '';
+			s = m +'.' + e;
+		}
+		return s;
+		
 		// TODO: handle floating and scientific formats, confirm against tests
 		const negative = number < 0 ? '-' : '';
 		number = Math.abs(number);
@@ -440,7 +460,7 @@ function TI30Xa_state(changes){
 			}
 			return state.child({entry});
 		} else {
-			return push_number(-top_number());
+			return push_number(top_number().negated());
 		};
 	};
 	
@@ -461,7 +481,8 @@ function TI30Xa_state(changes){
 	function ensure_empty_entry(){
 		const {entry} = state;
 		if(entry){
-			return push_number(Number(entry)).child({entry:''});
+			const x = new Decimal(entry);
+			return push_number(x).child({entry:''});
 		};
 		return state;
 	};
@@ -469,7 +490,7 @@ function TI30Xa_state(changes){
 	function top_number(){
 		return (state
 			.stack
-			.filter(x => typeof(x) === 'number')
+			.filter(x => (x instanceof Decimal))
 			.slice(-1)[0]
 		);
 	};
@@ -485,21 +506,18 @@ function TI30Xa_state(changes){
 	function push_number(number){
 		const stack = [...state.stack];
 		const top = stack.slice(-1)[0];
-		if(typeof(top) === 'number'){
+		if(top instanceof Decimal){
 			stack.pop();
 		};
-		if(Math.abs(number) < 1e-99){
-			number = 0;
-		}
 		stack.push(number);
 		return child({stack});
 	};
 	
 	function on(){
-		if (state.entry === '' || !state.on){
-			return child({on:true, stack:[0], error:false});
+		if (state.entry === ''){
+			return child({on:true, stack:[ZERO], error:false});
 		} else {
-			return child({entry:''}).push_number(0);
+			return child({entry:''}).push_number(ZERO);
 		}			
 	};
 	
@@ -588,25 +606,25 @@ function TI30Xa_state(changes){
 			
 			// constant
 			case "pi":
-				next_state = child({entry:''}).push_number(Math.PI);
+				next_state = child({entry:''}).push_number(PI);
 				break;
 			
 			// single variable functions
 			
 			case "1/x":
-				next_state = apply_pure_function(x => 1/x);
+				next_state = apply_pure_function(x => ONE.dividedBy(x));
 				break;
 			case "10^x":
-				next_state = apply_pure_function(x => 10**x);
+				next_state = apply_pure_function(x => TEN.toPower(x));
 				break;
 			case "3ROOTx":
-				next_state = apply_pure_function(x => Math.sign(x)*Math.abs(x)**(1/3));
+				next_state = apply_pure_function(x => Decimal.cbrt(x));
 				break;
 			case "LN":
-				next_state = apply_pure_function(Math.log);
+				next_state = apply_pure_function(x => x.naturalLogarithm());
 				break;
 			case "LOG":
-				next_state = apply_pure_function(Math.log10);
+				next_state = apply_pure_function(x => Decimal.log10(x));
 				break;
 			case "SIN":
 				next_state = apply_pure_function(sin);
@@ -618,46 +636,46 @@ function TI30Xa_state(changes){
 				next_state = apply_pure_function(tan);
 				break;
 			case "ASIN":
-				next_state = apply_pure_function(x => from_radians(Math.asin(x)));
+				next_state = apply_pure_function(x => from_radians(Decimal.asin(x)));
 				break;
 			case "ACOS":
-				next_state = apply_pure_function(x => from_radians(Math.acos(x)));
+				next_state = apply_pure_function(x => from_radians(Decimal.acos(x)));
 				break;
 			case "ATAN":
-				next_state = apply_pure_function(x => from_radians(Math.atan(x)));
+				next_state = apply_pure_function(x => from_radians(Decimal.atan(x)));
 				break;
 			case "SINH":
-				next_state = apply_pure_function(Math.sinh);
+				next_state = apply_pure_function(x => Decimal.sinh(x));
 				break;
 			case "COSH":
-				next_state = apply_pure_function(Math.cosh);
+				next_state = apply_pure_function(x => Decimal.cosh(x));
 				break;
 			case "TANH":
-				next_state = apply_pure_function(Math.tanh);
+				next_state = apply_pure_function(x => Decimal.tanh(x));
 				break;
 			case "ASINH":
-				next_state = apply_pure_function(Math.asinh);
+				next_state = apply_pure_function(x => Decimal.asinh(x));
 				break;
 			case "ACOSH":
-				next_state = apply_pure_function(Math.acosh);
+				next_state = apply_pure_function(x => Decimal.acosh(x));
 				break;
 			case "ATANH":
-				next_state = apply_pure_function(Math.atanh);
+				next_state = apply_pure_function(x => Decimal.atanh(x));
 				break;
 			case "x^2":
-				next_state = apply_pure_function(x => x**2);
+				next_state = apply_pure_function(x => x.toPower(2));
 				break;
 			case "x^3":
-				next_state = apply_pure_function(x => x**3);
+				next_state = apply_pure_function(x => x.toPower(3));
 				break;
 			case "sqrt":
-				next_state = apply_pure_function(Math.sqrt);
+				next_state = apply_pure_function(x => Decimal.sqrt(x));
 				break;
 			case "x!":
 				next_state = apply_pure_function(factorial);
 				break;
 			case "e^x":
-				next_state = apply_pure_function(Math.exp);
+				next_state = apply_pure_function(x => Decimal.exp(x));
 				break;
 			
 			// one-and-a-half variable function:
@@ -795,9 +813,9 @@ function TI30Xa_state(changes){
 		if(state.stack.length >= 4){
 			const [a, op1, b, op2] = state.stack.slice(-4);
 			if(
-				typeof(a) === 'number' 
+				(a instanceof Decimal) 
 				&&
-				typeof(b) === 'number'
+				(b instanceof Decimal)
 				&&
 				is_binary_op(op1)
 				&&
@@ -832,11 +850,11 @@ function TI30Xa_state(changes){
 		){
 			const oldtop = top_number();
 			const newstate = ensure_empty_entry();
-			return newstate.push_number(newstate.top_number()*oldtop/100);
+			return newstate.push_number(newstate.top_number().times(oldtop).dividedBy(100));
 		};
 		const newstate = ensure_empty_entry();
 		const topnum = newstate.top_number();
-		return newstate.push_number(topnum / 100);
+		return newstate.push_number(topnum.dividedBy(100));
 	};
 		
 	function apply_pure_function(func){
@@ -850,60 +868,83 @@ function TI30Xa_state(changes){
 			case ANGLE_MODES.radians:
 				return angle;
 			case ANGLE_MODES.degrees:
-				return angle*Math.PI/180;
+				return angle.times(PI).dividedBy(180);
 			case ANGLE_MODES.grads:
-				return angle*Math.PI/200;
+				return angle.times(PI).dividedBy(200);
+		};
+	};
+	
+	function to_degrees(angle){
+		switch(state.anglemode){
+			case ANGLE_MODES.radians:
+				return angle.times(180).dividedBy(PI);
+			case ANGLE_MODES.degrees:
+				return angle;
+			case ANGLE_MODES.grads:
+				return angle.times(180).dividedBy(200);
 		};
 	};
 	
 	function from_radians(angle){
-		return angle / to_radians(1);
+		return angle.dividedBy(to_radians(ONE));
 	};
 	
 	function cos(angle){
-		const radian = to_radians(trig_overflow_protect(angle));
-		const eps = floating_epsilon(radian);
-		if(Math.abs(mod(radian, Math.PI) - Math.PI/2) < eps){
-			return 0;
+		angle = trig_overflow_protect(angle);
+		const degree = to_degrees(angle);
+		
+		
+		if(degree.modulo(180).minus(90).absoluteValue().lessThan(1e-12)){
+			return ZERO;
 		}
-		if(Math.abs(mod(radian+Math.PI/2, 2*Math.PI)-Math.PI/2) < eps){
-			return 1;
+		if(degree.plus(90).modulo(360).minus(90).absoluteValue().lessThan(3e-5)){
+			return ONE;
 		}
-		if(Math.abs(mod(radian-Math.PI/2, 2*Math.PI)-Math.PI/2) < eps){
-			return -1;
+		if(degree.minus(90).modulo(360).minus(90).absoluteValue().lessThan(1e-12)){
+			return ONE.negated();
 		}
-		const ans = Math.cos(radian);
-		if(ans > 1-1e-13){
-			return 1;
-		}
-		return ans;
+		return Decimal.cos(to_radians(angle));
+		
 	};
 	
 	function sin(angle){
-		const radian = to_radians(trig_overflow_protect(angle));
-		const eps = floating_epsilon(radian);
-		if(Math.abs(mod(radian+Math.PI/2, Math.PI) - Math.PI/2) < eps){
-			return 0;
+		angle = trig_overflow_protect(angle);
+		const degree = to_degrees(angle);
+		
+		if(degree.plus(90).modulo(180).minus(90).absoluteValue().lessThan(1e-12)){
+			return ZERO;
 		}
-		if(Math.abs(mod(radian, 2*Math.PI)-Math.PI/2) < eps){
-			return 1;
+		if(degree.modulo(360).minus(90).absoluteValue().lessThan(1e-12)){
+			return ONE;
 		}
-		if(Math.abs(mod(radian, 2*Math.PI)-3*Math.PI/2) < eps){
-			return -1;
+		if(degree.modulo(360).minus(270).absoluteValue().lessThan(1e-12)){
+			return ONE.negated();
 		}
-		return Math.sin(radian);		
+		return Decimal.sin(to_radians(angle));		
 	};
 	
 	function tan(angle){
-		const radian = to_radians(trig_overflow_protect(angle));
-		const eps = floating_epsilon(radian);
-		if(Math.abs(mod(radian+Math.PI/2, Math.PI) - Math.PI/2) < eps){
-			return 0;
+		angle = trig_overflow_protect(angle)
+		const degree = to_degrees(angle);
+		
+		if(degree
+			.plus(90)
+			.modulo(180)
+			.minus(90)
+			.absoluteValue()
+			.lessThan(1e-12)
+		){
+			return ZERO;
 		}
-		if(Math.abs(mod(radian, Math.PI)-Math.PI/2) < eps){
-			return NaN;
+		if(degree
+			.modulo(180)
+			.minus(90)
+			.absoluteValue()
+			.lessThan(1e-12)
+		){
+			return NAN;
 		}
-		return Math.tan(radian);		
+		return Decimal.tan(to_radians(angle));		
 	};
 	
 	function drg(){
@@ -925,13 +966,13 @@ function TI30Xa_state(changes){
 	
 	function open_paren(){
 		const stack = [...state.ensure_empty_entry().stack];
-		if(typeof(stack.slice(-1)[0]) === 'number'){
+		if(stack.slice(-1)[0] instanceof Decimal){
 			stack.pop();
 		};
 		if(stack.slice(-1)[0] === '('){
 			stack.pop();
 		};
-		stack.push('(', 0);
+		stack.push('(', ZERO);
 		return ensure_empty_entry().child({stack});
 	};
 	
@@ -953,25 +994,18 @@ function TI30Xa_state(changes){
 	};
 	
 	function catch_errors(){
-		let stack = state.stack
-			.map(normalize_errors)
-			.map(function(x){
-				if(typeof(x) === 'number' && Math.abs(x)< 1e-99){
-					return 0;
-				}
-				return x;
-		});
-		const overflow = Math.abs(top_number()) >= 1e100;
-		const error = (state.error || stack.includes(NaN) || overflow);
+		let stack = [...state.stack];
+		const infinite = stack.filter(x => x instanceof Decimal).some(x => !x.isFinite());
+		const error = (state.error || infinite);
 		if(error){
-			stack = [0];
+			stack = [ZERO];
 		}
 		return child({error, stack});
 	};
 	
 	function trig_overflow_protect(x){
-		if(Math.abs(to_radians(x))*180/Math.PI >= 1e10){
-			return NaN;
+		if(to_degrees(x).greaterThanOrEqualTo(1e10)){
+			return NAN;
 		}
 		return x;
 	};
@@ -992,7 +1026,7 @@ function TI30Xa_state(changes){
 				memory[place] = top_number();
 				return push_number(entry).child({memorymode, memory});
 			case MEMORY_KEYS.sum:
-				memory[place] += top_number();
+				memory[place] = memory[place].plus(top_number());
 				return child({memorymode, memory});
 		}
 	};
