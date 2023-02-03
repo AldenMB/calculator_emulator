@@ -6,25 +6,6 @@ import {loadDatabase, iterDatabase} from './fetch.js';
 
 console.log(run_all_tests().message);
 
-function calcTree(state = TI30Xa().now()){
-	const cache = new Map();
-	const screen = state.to_text_display();
-	
-	function get(presses){
-		if (presses.length === 0){
-			return screen;
-		} else {
-			const p = presses[0];
-			if(!cache.has(p)){
-				cache.set(p, calcTree(state.push_button(p)));
-			}
-			return cache.get(p).get(presses.slice(1));
-		}
-	}
-	
-	return {get};
-}
-
 function isRoundingError(screen1, screen2){
 	if(screen1.slice(0, 79) !== screen2.slice(0, 79) ||
 		screen1.slice(101) !== screen2.slice(101)
@@ -41,21 +22,22 @@ let successes = 0;
 let skipped = 0;
 const maxConflicts = 10;
 const exclusions = ['ab/c', 'Sigma+', '(', ')'];
-const calc = calcTree();
-
 
 console.log('searching...');
 for await (const [sequence, screen] of iterDatabase()){
-	process.stdout.write(`${conflicts}\t${successes}\t${skipped}\r`);
+	process.stdout.write(`${conflicts}/${successes}/${skipped}`);
 	if(sequence.some(x => exclusions.includes(x))){
 		skipped += 1;
+		process.stdout.write('\r');
 		continue;
 	}
 	try {
 		process.stdout.write(
-			`${conflicts}\t/${successes}\t/${skipped}\t  >>>\t${sequence.map(x => x.toString().padEnd(6, ' ')).join(' >> ')}\r`
+			`  >>>[${sequence.map(x => x.toString().padEnd(4, ' ')).join(']>[')}]`.slice(0, 80)+'\r'
 		);
-		const computed = calc.get(sequence);
+		const calc = TI30Xa();
+		sequence.forEach(x => calc.press(x));
+		const computed = calc.now().to_text_display();
 		if(computed === screen){
 			successes++;
 		} else if (isRoundingError(computed, screen)) {
