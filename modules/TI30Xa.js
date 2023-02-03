@@ -171,6 +171,13 @@ function tanh(x){
 	return ONE.minus(y).dividedBy(ONE.plus(y));
 };
 
+function atan(x){
+	if(x.absoluteValue().greaterThan(Decimal.acos(0).tangent().absoluteValue())){
+		return Decimal.acos(0).times(x.s);
+	}
+	return Decimal.atan(x);
+};
+
 function second_map(label){
 	const index = BUTTON_LABELS.flat().indexOf(label);
 	if(index === -1){
@@ -373,26 +380,6 @@ function TI30Xa_state(changes){
 			s = m +'.' + e;
 		}
 		return s;
-		
-		// TODO: handle floating and scientific formats, confirm against tests
-		const negative = number < 0 ? '-' : '';
-		number = Math.abs(number);
-		if(number < 1e-99){
-			return '0.'
-		}
-		const exponent = Math.floor(Math.log10(number));
-		const scientific = (number < 0.00_000_000_1) || (number > 9_999_999_999);
-		if(scientific){
-			const mantissa = number * 10**(-exponent);
-			const mantissa_str = clear_trailing_zeros(mantissa.toFixed(9));
-			const exponent_str = (exponent<0? '-':' ') + Math.abs(exponent).toString().padStart(2, '0');
-			return negative + mantissa_str + 'e' + exponent_str;
-		}
-		if(!String(number).includes('.')  && !String(number).includes('e')){
-			return negative+String(number)+'.';
-		}
-		const precision = (exponent>0) ? 9-exponent : 9;
-		return negative + clear_trailing_zeros(number.toFixed(precision)) + (precision === 0? '.' : '');
 	};
 	
 	function to_html(){
@@ -677,7 +664,7 @@ function TI30Xa_state(changes){
 				next_state = apply_pure_function(x => from_radians(PreciseDecimal.acos(x)));
 				break;
 			case "ATAN":
-				next_state = apply_pure_function(x => from_radians(PreciseDecimal.atan(x)));
+				next_state = apply_pure_function(x => from_radians(atan(x)));
 				break;
 			case "SINH":
 				next_state = apply_pure_function(sinh);
@@ -945,6 +932,11 @@ function TI30Xa_state(changes){
 		if(degree.minus(90).modulo(360).minus(90).absoluteValue().lessThan(1e-12)){
 			return ONE.negated();
 		}
+		
+		if(state.anglemode === ANGLE_MODES.radians){
+			return Decimal.cos(angle);
+		}
+		
 		return cos_degrees(degree);
 		
 	};
@@ -953,7 +945,10 @@ function TI30Xa_state(changes){
 		angle = trig_overflow_protect(angle);
 		const degree = to_degrees(angle);
 		
-		if(degree.plus(90).modulo(180).minus(90).absoluteValue().lessThan(1e-12)){
+		if(degree.plus(90).modulo(180).minus(90).absoluteValue().lessThan(1e-12)
+			||
+			degree.absoluteValue().lessThan(1e-12)
+		){
 			return ZERO;
 		}
 		if(degree.modulo(360).minus(90).absoluteValue().lessThan(1e-12)){
@@ -962,6 +957,11 @@ function TI30Xa_state(changes){
 		if(degree.modulo(360).minus(270).absoluteValue().lessThan(1e-12)){
 			return ONE.negated();
 		}
+		
+		if(state.anglemode === ANGLE_MODES.radians){
+			return Decimal.sin(angle);
+		}
+		
 		return sin_degrees(degree);	
 	};
 	
@@ -985,6 +985,10 @@ function TI30Xa_state(changes){
 			.lessThan(1e-10)
 		){
 			return NAN;
+		}
+		
+		if(state.anglemode === ANGLE_MODES.radians){
+			return Decimal.tan(angle);
 		}
 		
 		return tan_degrees(degree);
