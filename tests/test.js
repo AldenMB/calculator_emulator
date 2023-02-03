@@ -241,8 +241,8 @@ const TESTS = Object.freeze([
 	check: display_is("1."),
 },{
 	name: "reject repeat openparens",
-	sequence: "( (",
-	check: stack_is(['(', "0"]),
+	sequence: "( ( (",
+	check: stack_is(['0', '(', "0"]),
 },{
 	name: "nested parentheses partial resolution",
 	sequence: "5 * ( 7 - ( 2 + 3 )",
