@@ -103,6 +103,8 @@ function loggamma(z){
 };
 
 function permutation(n, r){
+	n = n.isZero() ? ZERO : n;
+	r = r.isZero() ? ZERO : r;
 	if(r.isNegative() || n.isNegative() || !r.isInteger() || !n.isInteger()){
 		return NAN;
 	};
@@ -121,6 +123,8 @@ function permutation(n, r){
 };
 
 function combination(n, r){
+	n = n.isZero() ? ZERO : n;
+	r = r.isZero() ? ZERO : r;
 	if(r.isNegative() || n.isNegative() || !r.isInteger() || !n.isInteger()){
 		return NAN;
 	};
@@ -143,15 +147,15 @@ const PreciseConversionFactor = PreciseDecimal.acos(-1).dividedBy(180);
 const PreciseONE = new PreciseDecimal(1);
 
 function cos_degrees(x){
-	return new Decimal(PreciseConversionFactor.times(x).cos());
+	return new Decimal(PreciseConversionFactor.times(x).cos().toPrecision(Decimal.precision));
 };
 
 function sin_degrees(x){
-	return new Decimal(PreciseConversionFactor.times(x).sin());
+	return new Decimal(PreciseConversionFactor.times(x).sin().toPrecision(Decimal.precision));
 };
 
 function tan_degrees(x){
-	return new Decimal(PreciseConversionFactor.times(x).tan());
+	return new Decimal(PreciseConversionFactor.times(x).tan().toPrecision(Decimal.precision));
 };
 
 function cosh(x){
@@ -276,6 +280,7 @@ function TI30Xa_state(changes){
 		equals,
 		close_paren,
 		from_radians,
+		from_degrees,
 		drg,
 	};
 	
@@ -874,17 +879,20 @@ function TI30Xa_state(changes){
 	};
 	
 	function percent(){
+		let newstate = ensure_empty_entry();
+		let x = newstate.top_number().dividedBy(100);
+		if(!(newstate.stack.slice(-1)[0] instanceof Decimal)){
+			newstate = newstate.push_number(ZERO);
+			// doesn't matter what number we add, it will get overwritten
+			// it just makes it easier to keep track of indices
+		}
 		if(
 			[BINARY_OPS.plus, BINARY_OPS.minus]
-			.includes(state.stack.slice(-1)[0])
+			.includes(newstate.stack.slice(-2)[0])
 		){
-			const oldtop = top_number();
-			const newstate = ensure_empty_entry();
-			return newstate.push_number(newstate.top_number().times(oldtop).dividedBy(100));
+			x = x.times(newstate.stack.slice(-3)[0]);
 		};
-		const newstate = ensure_empty_entry();
-		const topnum = newstate.top_number();
-		return newstate.push_number(topnum.dividedBy(100));
+		return newstate.push_number(x);
 	};
 		
 	function apply_pure_function(func){
@@ -994,17 +1002,18 @@ function TI30Xa_state(changes){
 	
 	function drg_convert(){
 		const oldstate = state.ensure_empty_entry();
-		const angle = to_radians(oldstate.top_number());
+		const angle = to_degrees(oldstate.top_number());
 		const newstate = oldstate.drg();
-		return newstate.push_number(newstate.from_radians(angle));
+		return newstate.push_number(newstate.from_degrees(angle));
 	};
 	
 	function open_paren(){
 		const stack = [...state.ensure_empty_entry().stack];
-		if(stack.slice(-1)[0] instanceof Decimal){
+		if(stack.slice(-1)[0] === '('){
 			stack.pop();
 		};
-		if(stack.slice(-1)[0] === '('){
+		if(stack.slice(-2)[0] === '(' && stack.slice(-1)[0] === ZERO){
+			stack.pop();
 			stack.pop();
 		};
 		stack.push('(', ZERO);
@@ -1020,11 +1029,15 @@ function TI30Xa_state(changes){
 		const lastparen = stack.lastIndexOf('(');
 		const stacktail = stack.slice(lastparen+1);
 		const stackbase = stack.slice(0, lastparen);
+		if(stackbase.slice(-1)[0] instanceof Decimal){
+			stackbase.pop();
+		};
 		stackbase.push(
 			child({stack:stacktail})
 			.equals()
 			.top_number()
 		);
+		
 		return next_state.child({stack:stackbase});
 	};
 	
