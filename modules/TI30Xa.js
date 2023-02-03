@@ -52,15 +52,6 @@ function array_equal(arr1, arr2){
 	return arr1.every((elt, i) => elt === arr2[i]);
 };
 
-function mod(n, d){
-	return ((n%d)+d)%d;
-};
-
-function floating_epsilon(x){
-	const nearby = parseFloat(x.toPrecision(12));
-	return Math.abs(nearby-x);
-};
-
 function clear_trailing_zeros(str){
 	if (str.includes('.')){
 		while(str.slice(-1) === '0'){
@@ -513,14 +504,6 @@ function TI30Xa_state(changes){
 		return (state
 			.stack
 			.filter(x => (x instanceof Decimal))
-			.slice(-1)[0]
-		);
-	};
-	
-	function top_op(){
-		return (state
-			.stack
-			.filter(x => x in BINARY_OPS)
 			.slice(-1)[0]
 		);
 	};
