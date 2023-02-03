@@ -1,3 +1,5 @@
+/* jshint esversion: 11 */
+
 import {BUTTON_LABELS, SECOND_LABELS} from "./button_parse.js";
 import {Decimal} from "./decimal.mjs";
 
@@ -16,7 +18,7 @@ function boxify(str, length){
 	const body = str.split('\n').join('│\n│');
 	const footer = '│\n└' + '─'.repeat(length) + '┘';
 	return header + body + footer;
-};
+}
 
 const BINARY_OPS = Object.freeze({
 	times: '*',
@@ -50,7 +52,7 @@ const FORMAT_MODES = Object.freeze({
 
 function array_equal(arr1, arr2){
 	return arr1.every((elt, i) => elt === arr2[i]);
-};
+}
 
 function clear_trailing_zeros(str){
 	if (str.includes('.')){
@@ -59,20 +61,20 @@ function clear_trailing_zeros(str){
 		}
 	}
 	return str;
-};
+}
 
 function factorial(x){
 	if(x.isZero()){
 		return ONE;
-	};
+	}
 	if(x.isNegative() || !x.isInteger()){
 		return NAN;
-	};
+	}
 	if(x.greaterThan(69)){
 		return NAN;
-	};
+	}
 	return x.times(factorial(x.minus(1)));
-};
+}
 
 // even bernoulli numbers B2,B4,B6,...
 const BERNOULLI = [  
@@ -82,26 +84,26 @@ const BERNOULLI = [
 
 function loggamma(z){
 	// formula 6.1.40 of Handbook of Mathematical Functions
-	z = z.toNumber()
+	z = z.toNumber();
 	return (
-		(z-1/2)*Math.log(z) 
-		- z
-		+1/2*Math.log(2*Math.PI)
-		+BERNOULLI.map( (B, n) => (
+		(z-1/2)*Math.log(z) -
+		z +
+		1/2*Math.log(2*Math.PI) +
+		BERNOULLI.map( (B, n) => (
 			B/(2*(n+1)*(2*n+1)*z**(2*n+1))
 		)).reduce((x, a) => (x+a), 0)
 	);
-};
+}
 
 function permutation(n, r){
 	n = n.isZero() ? ZERO : n;
 	r = r.isZero() ? ZERO : r;
 	if(r.isNegative() || n.isNegative() || !r.isInteger() || !n.isInteger()){
 		return NAN;
-	};
+	}
 	if(r.greaterThan(n)){
 		return ZERO;
-	};
+	}
 	if(r.lessThan(100)){
 		return (
 			[...Array(r.toNumber()).keys()]
@@ -110,28 +112,26 @@ function permutation(n, r){
 		);
 	}
 	return Decimal.exp(loggamma(n.plus(1)) - loggamma(r.plus(1)));
-
-};
+}
 
 function combination(n, r){
 	n = n.isZero() ? ZERO : n;
 	r = r.isZero() ? ZERO : r;
 	if(r.isNegative() || n.isNegative() || !r.isInteger() || !n.isInteger()){
 		return NAN;
-	};
+	}
 	if(r.greaterThan(n)){
 		return ZERO;
-	};
+	}
 	if(r.times(2).greaterThan(n)){
 		r = n.minus(r);
-	};
+	}
 	if(n.lessThan(100) || r.lessThan(20)){
 		return permutation(n, r).dividedBy(factorial(r));
 	} else {
 		return  Decimal.exp(loggamma(n.plus(1)) - loggamma(r.plus(1)) - loggamma(n.minus(r).plus(1)));
 	}
-	
-};
+}
 
 const PreciseDecimal = Decimal.clone({precision:100});
 const PreciseConversionFactor = PreciseDecimal.acos(-1).dividedBy(180);
@@ -139,41 +139,41 @@ const PreciseONE = new PreciseDecimal(1);
 
 function cos_degrees(x){
 	return new Decimal(PreciseConversionFactor.times(x).cos().toPrecision(Decimal.precision));
-};
+}
 
 function sin_degrees(x){
 	return new Decimal(PreciseConversionFactor.times(x).sin().toPrecision(Decimal.precision));
-};
+}
 
 function tan_degrees(x){
 	return new Decimal(PreciseConversionFactor.times(x).tan().toPrecision(Decimal.precision));
-};
+}
 
 function cosh(x){
 	return x.exp().plus(x.negated().exp()).dividedBy(2);
-};
+}
 
 function sinh(x){
 	return x.exp().minus(x.negated().exp()).dividedBy(2);
-};
+}
 
 function tanh(x){
 	const y = x.times(2).negated().exp();
 	return ONE.minus(y).dividedBy(ONE.plus(y));
-};
+}
 
 function atan(x){
 	if(x.absoluteValue().greaterThan(Decimal.acos(0).tangent().absoluteValue())){
 		return Decimal.acos(0).times(x.s);
 	}
 	return Decimal.atan(x);
-};
+}
 
 function second_map(label){
 	const index = BUTTON_LABELS.flat().indexOf(label);
 	if(index === -1){
 		return label;
-	};
+	}
 	return SECOND_LABELS.flat()[index];
 }
 
@@ -208,8 +208,8 @@ function apply_binary_op(a, op, b){
 			return permutation(a, b);
 		case BINARY_OPS.combine:
 			return combination(a, b);
-	};
-};
+	}
+}
 
 function binary_op_precedence(op){
 	switch(op){
@@ -229,12 +229,12 @@ function binary_op_precedence(op){
 			return 3;
 		case BINARY_OPS.combine:
 			return 3;
-	};
-};
+	}
+}
 
 function is_binary_op(op){
 	return Object.values(BINARY_OPS).includes(op);
-};
+}
 
 const ZERO = new Decimal(0);
 const ONE = new Decimal(1);
@@ -291,7 +291,7 @@ function TI30Xa_state(changes){
 		
 	function child(changes){
 		return TI30Xa_state(Object.assign({}, state, changes));
-	};
+	}
 	
 	function to_text_display(){
 		// produce an output like the following:
@@ -341,15 +341,15 @@ function TI30Xa_state(changes){
 			.join('')
 		);
 		return boxify(topline + interlaced + (exponent || '').replace('+', ' ').padStart(14, ' '), 36);
-	};
+	}
 	
 	function shown_number(){
 		if(!state.on){
 			return 'blank';
-		};
+		}
 		if(state.error){
 			return 'Error';
-		};
+		}
 		if(state.entry){
 			return state.entry;
 		}
@@ -358,7 +358,7 @@ function TI30Xa_state(changes){
 		if(!(number instanceof Decimal)){
 			console.log('no Decimal on the stack: ',JSON.stringify(state.stack));
 			return 'BADDECIMAL';
-		};
+		}
 		
 		
 		let s = number.toSignificantDigits(10).toString();
@@ -371,7 +371,7 @@ function TI30Xa_state(changes){
 			s = m +'.' + e;
 		}
 		return s;
-	};
+	}
 	
 	function to_html(){
 		return (
@@ -380,7 +380,7 @@ function TI30Xa_state(changes){
 			.map(key => `${key}: ${JSON.stringify(state[key])}`)
 			.join("<br/>")
 		);
-	};
+	}
 	
 	function enter_digit(digit){
 		if (state.memorymode!=='' && ['1', '2', '3'].includes(digit)){
@@ -396,12 +396,12 @@ function TI30Xa_state(changes){
 		entry += digit;
 		if( entry[0] === '0' && entry.length > 1 && entry[1] !== '.'){
 			entry = entry.slice(1);
-		};
+		}
 		if( entry.slice(0,2) === '-0' && entry.length > 2 && entry[2] !== '.'){
 			entry = '-' + entry.slice(2);
-		};
+		}
 		return state.child({entry});
-	};
+	}
 	
 	function enter_exponent(digit){
 		const {entry:previous} = state;
@@ -415,28 +415,28 @@ function TI30Xa_state(changes){
 		}
 		const entry = mantissa+'e'+exponent;
 		return state.child({entry});
-	};
+	}
 	
 	function begin_exponent(){
 		let {entry} = state;
 		if(entry.includes('e') || entry === ''){
 			return state;
-		};
+		}
 		entry = entry + 'e00';
 		return state.child({entry});
-	};
+	}
 	
 	function enter_decimal(){
 		let {entry} = state;
 		if(entry.includes('e') || entry.includes('.')){
 			return state;
-		};
+		}
 		if(entry === ''){
 			entry = '0';
-		};
+		}
 		entry = entry + '.';
 		return state.child({entry});
-	};
+	}
 	
 	function backspace(){
 		let {entry} = state;
@@ -474,14 +474,14 @@ function TI30Xa_state(changes){
 			return state.child({entry});
 		} else {
 			return push_number(top_number().negated());
-		};
-	};
+		}
+	}
 	
 	function equals(){
 		let newstate = state;
 		while(newstate.stack.includes('(')){
 			newstate = newstate.close_paren();
-		};
+		}
 		return (
 			newstate
 			.ensure_empty_entry()
@@ -489,16 +489,16 @@ function TI30Xa_state(changes){
 			.reduce_binary_op()
 			.catch_errors()
 		);
-	};
+	}
 	
 	function ensure_empty_entry(){
 		const {entry} = state;
 		if(entry){
 			const x = new Decimal(entry);
 			return push_number(x).child({entry:''});
-		};
+		}
 		return state;
-	};
+	}
 	
 	function top_number(){
 		return (state
@@ -506,17 +506,17 @@ function TI30Xa_state(changes){
 			.filter(x => (x instanceof Decimal))
 			.slice(-1)[0]
 		);
-	};
+	}
 	
 	function push_number(number){
 		const stack = [...state.stack];
 		const top = stack.slice(-1)[0];
 		if(top instanceof Decimal){
 			stack.pop();
-		};
+		}
 		stack.push(number);
 		return child({stack});
-	};
+	}
 	
 	function on(){
 		if (state.entry === ''){
@@ -524,12 +524,12 @@ function TI30Xa_state(changes){
 		} else {
 			return child({entry:''}).push_number(ZERO);
 		}			
-	};
+	}
 	
 	function off(){
 		//TODO: clear statistical register
 		return child({on:false, entry:'', anglemode:ANGLE_MODES.degrees});
-	};
+	}
 	
 	////////////////////////////////
 	
@@ -542,10 +542,10 @@ function TI30Xa_state(changes){
 		}
 		if(!state.on && label !== 'ON/C'){
 			return state;
-		};
+		}
 		if(state.error && !['ON/C', 'OFF'].includes(label)){
 			return state;
-		};
+		}
 		let next_state = state;
 		switch(label){
 			// mode change
@@ -757,7 +757,7 @@ function TI30Xa_state(changes){
 					error: 'not implemented',
 					button: label,
 				};
-		};
+		}
 		if(!['2nd', 'HYP'].includes(label)){
 			next_state = next_state.child({second:false});
 			if(!(['1', '2', '3'].includes(label) && state.memorymode !== '')){
@@ -766,7 +766,7 @@ function TI30Xa_state(changes){
 			if(!Object.values(MEMORY_KEYS).includes(label)){
 				next_state = next_state.child({memorymode: ''});
 			}
-		};
+		}
 		return next_state;
 	}
 	
@@ -789,7 +789,7 @@ function TI30Xa_state(changes){
 			return child({stack});
 		} else {
 			return state;
-		};
+		}
 	}
 	
 	function stack_push(...x){
@@ -806,7 +806,7 @@ function TI30Xa_state(changes){
 			.reduce_binary_op()
 			.catch_errors()
 		);
-	};
+	}
 	
 	function reduce_binary_op(){
 		if(state.stack.length < 3){
@@ -818,12 +818,9 @@ function TI30Xa_state(changes){
 		if(state.stack.length >= 4){
 			const [a, op1, b, op2] = state.stack.slice(-4);
 			if(
-				(a instanceof Decimal) 
-				&&
-				(b instanceof Decimal)
-				&&
-				is_binary_op(op1)
-				&&
+				(a instanceof Decimal) &&
+				(b instanceof Decimal) &&
+				is_binary_op(op1) &&
 				is_binary_op(op2)
 			){
 				if(binary_op_precedence(op1) >= binary_op_precedence(op2)){
@@ -832,9 +829,9 @@ function TI30Xa_state(changes){
 					return child({stack}).reduce_binary_op();
 				} else {
 					return state;
-				};		
-			};
-		};
+				}	
+			}
+		}
 		
 		// this block handles the typical case of having to simply
 		// reduce the leading portion.
@@ -846,7 +843,7 @@ function TI30Xa_state(changes){
 		} else {
 			return state;
 		}		
-	};
+	}
 	
 	function percent(){
 		let newstate = ensure_empty_entry();
@@ -861,15 +858,15 @@ function TI30Xa_state(changes){
 			.includes(newstate.stack.slice(-2)[0])
 		){
 			x = x.times(newstate.stack.slice(-3)[0]);
-		};
+		}
 		return newstate.push_number(x);
-	};
+	}
 		
 	function apply_pure_function(func){
 		const newstate = ensure_empty_entry();
 		const result = func(newstate.top_number());
 		return newstate.push_number(result).catch_errors();
-	};
+	}
 	
 	function to_radians(angle){
 		switch(state.anglemode){
@@ -879,8 +876,8 @@ function TI30Xa_state(changes){
 				return angle.times(PI).dividedBy(180);
 			case ANGLE_MODES.grads:
 				return angle.times(PI).dividedBy(200);
-		};
-	};
+		}
+	}
 	
 	function to_degrees(angle){
 		switch(state.anglemode){
@@ -890,16 +887,16 @@ function TI30Xa_state(changes){
 				return angle;
 			case ANGLE_MODES.grads:
 				return angle.times(180).dividedBy(200);
-		};
-	};
+		}
+	}
 	
 	function from_radians(angle){
 		return angle.dividedBy(to_radians(PreciseONE)).toSignificantDigits(14);
-	};
+	}
 	
 	function from_degrees(angle){
 		return angle.dividedBy(to_degrees(ONE));
-	};
+	}
 	
 	function cos(angle){
 		angle = trig_overflow_protect(angle);
@@ -921,15 +918,18 @@ function TI30Xa_state(changes){
 		}
 		
 		return cos_degrees(degree);
-		
-	};
+	}
 	
 	function sin(angle){
 		angle = trig_overflow_protect(angle);
 		const degree = to_degrees(angle);
 		
-		if(degree.plus(90).modulo(180).minus(90).absoluteValue().lessThan(1e-12)
-			&&
+		if(degree
+			.plus(90)
+			.modulo(180)
+			.minus(90)
+			.absoluteValue()
+			.lessThan(1e-12) &&
 			degree.absoluteValue().greaterThan(1)
 		){
 			return ZERO;
@@ -944,16 +944,19 @@ function TI30Xa_state(changes){
 		if(state.anglemode === ANGLE_MODES.radians){
 			return Decimal.sin(angle);
 		}
-		
 		return sin_degrees(degree);	
-	};
+	}
 	
 	function tan(angle){
-		angle = trig_overflow_protect(angle)
+		angle = trig_overflow_protect(angle);
 		const degree = to_degrees(angle);
 		
-		if(degree.plus(90).modulo(180).minus(90).absoluteValue().lessThan(1e-12)
-			&&
+		if(degree
+			.plus(90)
+			.modulo(180)
+			.minus(90)
+			.absoluteValue()
+			.lessThan(1e-12) &&
 			degree.absoluteValue().greaterThan(1)
 		){
 			return ZERO;
@@ -972,37 +975,35 @@ function TI30Xa_state(changes){
 		}
 		
 		return tan_degrees(degree);
-	};
+	}
 	
 	function drg(){
 		const modes = Object.values(ANGLE_MODES);
 		const anglemode = modes[
-			(modes.indexOf(state.anglemode)+1)
-			%
-			modes.length
+			(modes.indexOf(state.anglemode)+1) % modes.length
 		];
 		return child({anglemode});
-	};
+	}
 	
 	function drg_convert(){
 		const oldstate = state.ensure_empty_entry();
 		const angle = to_degrees(oldstate.top_number());
 		const newstate = oldstate.drg();
 		return newstate.push_number(newstate.from_degrees(angle));
-	};
+	}
 	
 	function open_paren(){
 		const stack = [...state.ensure_empty_entry().stack];
 		if(stack.slice(-1)[0] === '('){
 			stack.pop();
-		};
+		}
 		if(stack.slice(-2)[0] === '(' && stack.slice(-1)[0] === ZERO){
 			stack.pop();
 			stack.pop();
-		};
+		}
 		stack.push('(', ZERO);
 		return ensure_empty_entry().child({stack});
-	};
+	}
 	
 	function close_paren(){
 		if(!state.stack.includes('(')){
@@ -1015,7 +1016,7 @@ function TI30Xa_state(changes){
 		const stackbase = stack.slice(0, lastparen);
 		if(stackbase.slice(-1)[0] instanceof Decimal){
 			stackbase.pop();
-		};
+		}
 		stackbase.push(
 			child({stack:stacktail})
 			.equals()
@@ -1023,7 +1024,7 @@ function TI30Xa_state(changes){
 		);
 		
 		return next_state.child({stack:stackbase});
-	};
+	}
 	
 	function catch_errors(){
 		let stack = [...state.stack];
@@ -1033,14 +1034,14 @@ function TI30Xa_state(changes){
 			stack = [ZERO];
 		}
 		return child({error, stack});
-	};
+	}
 	
 	function trig_overflow_protect(x){
 		if(to_degrees(x).absoluteValue().greaterThanOrEqualTo(1e10)){
 			return NAN;
 		}
 		return x;
-	};
+	}
 	
 	
 	function apply_memory_function(digit){
@@ -1061,8 +1062,8 @@ function TI30Xa_state(changes){
 				memory[place] = memory[place].plus(top_number());
 				return child({memorymode, memory});
 		}
-	};
-};
+	}
+}
 
 function TI30Xa(){
 	const history = [TI30Xa_state()];
@@ -1074,31 +1075,31 @@ function TI30Xa(){
 	
 	function now(){
 		return history.slice(-1)[0];
-	};
+	}
 	
 	function press(keyname){
 		command_log.push(keyname);
 		history.push(now().push_button(keyname));
-	};
+	}
 	
 	function undo(){
 		if(history.length > 1){
 			history.pop();
 			command_log.pop();
 		}
-	};
+	}
 	
 	function to_html(){
 		return (history
 			.map(state => state.to_html())
 			.join("<br/><br/>")
 		);
-	};
+	}
 	
 	function current_html(){
 		return now().to_html();
-	};
+	}
 }
 
 
-export {TI30Xa, array_equal, BINARY_OPS}
+export {TI30Xa, array_equal, BINARY_OPS};
