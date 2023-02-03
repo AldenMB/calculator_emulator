@@ -134,7 +134,7 @@ function combination(n, r){
 	if(r.times(2).greaterThan(n)){
 		r = n.minus(r);
 	};
-	if(n.lessThan(100)){
+	if(n.lessThan(100) || r.lessThan(20)){
 		return permutation(n, r).dividedBy(factorial(r));
 	} else {
 		return  Decimal.exp(loggamma(n.plus(1)) - loggamma(r.plus(1)) - loggamma(n.minus(r).plus(1)));
@@ -946,8 +946,8 @@ function TI30Xa_state(changes){
 		const degree = to_degrees(angle);
 		
 		if(degree.plus(90).modulo(180).minus(90).absoluteValue().lessThan(1e-12)
-			||
-			degree.absoluteValue().lessThan(1e-12)
+			&&
+			degree.absoluteValue().greaterThan(1)
 		){
 			return ZERO;
 		}
@@ -969,12 +969,9 @@ function TI30Xa_state(changes){
 		angle = trig_overflow_protect(angle)
 		const degree = to_degrees(angle);
 		
-		if(degree
-			.plus(90)
-			.modulo(180)
-			.minus(90)
-			.absoluteValue()
-			.lessThan(1e-12)
+		if(degree.plus(90).modulo(180).minus(90).absoluteValue().lessThan(1e-12)
+			&&
+			degree.absoluteValue().greaterThan(1)
 		){
 			return ZERO;
 		}
@@ -1056,7 +1053,7 @@ function TI30Xa_state(changes){
 	};
 	
 	function trig_overflow_protect(x){
-		if(to_degrees(x).greaterThanOrEqualTo(1e10)){
+		if(to_degrees(x).absoluteValue().greaterThanOrEqualTo(1e10)){
 			return NAN;
 		}
 		return x;
