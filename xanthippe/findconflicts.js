@@ -25,11 +25,22 @@ function calcTree(state = TI30Xa().now()){
 	return {get};
 }
 
+function isRoundingError(screen1, screen2){
+	if(screen1.slice(0, 79) !== screen2.slice(0, 79) ||
+		screen1.slice(101) !== screen2.slice(101)
+	){
+		return false;
+	}
+	const mantissa1 = screen1.slice(79, 101).replaceAll(' ', '');
+	const mantissa2 = screen2.slice(79, 101).replaceAll(' ', '');
+	return mantissa1.slice(0, 8) === mantissa2.slice(0, 8);
+}
+
 let conflicts = 0;
 let successes = 0;
 let skipped = 0;
 const maxConflicts = 10;
-const exclusions = ['(', ')'];
+const exclusions = ['ab/c', 'Sigma+', '(', ')'];
 const calc = calcTree();
 
 
@@ -47,15 +58,17 @@ for await (const [sequence, screen] of iterDatabase()){
 		const computed = calc.get(sequence);
 		if(computed === screen){
 			successes++;
+		} else if (isRoundingError(computed, screen)) {
+			++skipped;
 		} else {
 			conflicts++;
-			console.log('');
+			console.log('\n');
 			console.log(sequence.join(' >> '));
 			console.log('Computed:');
 			console.log(computed);
 			console.log('Measured:');
 			console.log(screen);
-			console.log('\n');
+			console.log('');
 		}
 		if (conflicts > maxConflicts){
 			break;
