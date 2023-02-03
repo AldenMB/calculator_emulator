@@ -1,3 +1,5 @@
+/* jshint esversion: 11 */
+
 import {TI30Xa} from '../modules/TI30Xa.js';
 import {run_all_tests} from '../tests/test.js';
 import {createInterface} from 'readline';
@@ -10,7 +12,7 @@ const readline = createInterface({
 });
 
 
-readline.on("close", () => {console.log('\n'); process.exit(0)});
+readline.on("close", () => {console.log('\n'); process.exit(0);});
 
 const c = TI30Xa();
 
@@ -22,6 +24,6 @@ function main(input){
 	console.log(c.now().to_text_display());
 	
 	readline.question('type a button name>', main);
-};
+}
 
 main();

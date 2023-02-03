@@ -1,3 +1,5 @@
+/* jshint esversion: 11 */
+
 import {TI30Xa, array_equal} from '../modules/TI30Xa.js';
 import {run_all_tests} from '../tests/test.js';
 import {loadDatabase, iterDatabase} from './fetch.js';
@@ -18,10 +20,10 @@ function calcTree(state = TI30Xa().now()){
 			}
 			return cache.get(p).get(presses.slice(1));
 		}
-	};
+	}
 	
 	return {get};
-};
+}
 
 let conflicts = 0;
 let successes = 0;
@@ -47,13 +49,13 @@ for await (const [sequence, screen] of iterDatabase()){
 			successes++;
 		} else {
 			conflicts++;
-			console.log('')
+			console.log('');
 			console.log(sequence.join(' >> '));
 			console.log('Computed:');
 			console.log(computed);
 			console.log('Measured:');
 			console.log(screen);
-			console.log('');
+			console.log('\n');
 		}
 		if (conflicts > maxConflicts){
 			break;

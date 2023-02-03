@@ -1,3 +1,5 @@
+/* jshint esversion: 11 */
+
 import https from "https";
 import fs from "fs";
 import zlib from "zlib";
@@ -20,7 +22,7 @@ async function downloadDatabase(){
 		await pipeStream(res, fs.createWriteStream('xanthippe.csv.gz'));
 		console.log('Wrote latest Xanthippe table to xanthippe.csv.gz');
 	});
-};
+}
 
 async function* readSessions(){
 	const reader = readline.createInterface({
@@ -33,7 +35,7 @@ async function* readSessions(){
 		requested = requested === '1';
 		yield {buttons, screen, requested};
 	}
-};
+}
 
 const encoding = {
 	"+-": "A",
@@ -76,7 +78,7 @@ const encoding = {
 	"LN": "t",
 	")": "u",
 	"ON/C": "4"
-}
+};
 Object.freeze(encoding);
 
 const decoding = {
@@ -129,8 +131,8 @@ async function* iterDatabase(){
 			const presses = buttons.split('').map(x => decoding[x]);
 			yield [presses, toText(screen)];
 		}
-	};
-};
+	}
+}
 
 async function loadDatabase(){
 	const data = new Map();
@@ -145,7 +147,7 @@ async function loadDatabase(){
 		} else {
 			throw new Error('Xanthippe has not recorded the sequence');
 		}
-	};
+	}
 	
 	function* iter(){
 		for (const [buttons, screen] of [...data].sort((x, y) => x[0].length - y[0].length)){
@@ -154,13 +156,13 @@ async function loadDatabase(){
 			}
 			const presses = buttons.split('').map(c => decoding[c]);
 			yield [presses, toText(screen)];
-		};
-	};
+		}
+	}
 	
 	const retval = {get};
 	retval[Symbol.iterator] = iter;
 	return retval;
-};
+}
 
 function sevenseg(bits){
 	return Object.fromEntries(
@@ -168,7 +170,7 @@ function sevenseg(bits){
 		.split(' ')
 		.map((x, i) => [x, bits[i]])
 	);
-};
+}
 
 const symboltable = {
 	0b0000000: " ",
@@ -194,11 +196,11 @@ const symboltable = {
 	0b0000001: "'",
 	0b1000110: "n",
 	0b0000010: "-",
-}
+};
 
 function letterOf(b){
 	return symboltable[b & 0x7f] + ((b & 0x80) ? '.' : ' ');
-};
+}
 
 function toText(screen){
 	const bytes = screen.match(/.{1,2}/g).map(x => (
@@ -235,24 +237,18 @@ function toText(screen){
 		s.HYP,
 		s.ENG,
 		s.SCI
-	] = bits[13]
+	] = bits[13];
 	
 	const row1 = ("M1,M2,M3,2nd,HYP,SCI,ENG,FIX,STAT,DE,G,RAD,X,R,(),K"
 		.split(',')
-		.map( x => (
-			s[x.trim()] 
-			?
-			x
-			:
-			' '.repeat(x.length)
-		))
+		.map( x => (s[x.trim()] ? x	: ' '.repeat(x.length)) )
 		.join('')
 	);
 	const row2 = (
-		(g10 ? '- ' : '  ')
-		+ bytes.slice(3, 13).map(letterOf).reverse().join('')
-		+ (e2g ? '-' : '').padStart(12)
-		+ bytes.slice(1, 3).map(letterOf).map(x => x[0]).reverse().join('')
+		(g10 ? '- ' : '  ') +
+		bytes.slice(3, 13).map(letterOf).reverse().join('') +
+		(e2g ? '-' : '').padStart(12) +
+		bytes.slice(1, 3).map(letterOf).map(x => x[0]).reverse().join('')
 	);
 	const string = row1 + '\n' + row2;
 	
@@ -260,14 +256,14 @@ function toText(screen){
 	s.exponent = exponent;
 	
 	return boxify(string, 36);
-};
+}
 
 function boxify(str, length){
 	const header = '┌' + '─'.repeat(length) + '┐\n│';
 	const body = str.split('\n').join('│\n│');
 	const footer = '│\n└' + '─'.repeat(length) + '┘';
 	return header + body + footer;
-};
+}
 
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
