@@ -142,7 +142,7 @@ function combination(n, r){
 	
 };
 
-const PreciseDecimal = Decimal.clone({precision:50});
+const PreciseDecimal = Decimal.clone({precision:100});
 const PreciseConversionFactor = PreciseDecimal.acos(-1).dividedBy(180);
 const PreciseONE = new PreciseDecimal(1);
 
@@ -982,7 +982,7 @@ function TI30Xa_state(changes){
 			.modulo(180)
 			.minus(90)
 			.absoluteValue()
-			.lessThan(1e-12)
+			.lessThan(1e-10)
 		){
 			return NAN;
 		}
