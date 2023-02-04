@@ -158,6 +158,10 @@ function sinh(x){
 }
 
 function tanh(x){
+	if(x.abs().greaterThan('15.3133766947412446')){
+		// atanh(1-1e-13)
+		return ONE.times(x.s);
+	}
 	const y = x.times(2).negated().exp();
 	return ONE.minus(y).dividedBy(ONE.plus(y));
 }
@@ -189,6 +193,11 @@ function apply_binary_op(a, op, b){
 		case BINARY_OPS.plus:
 			return a.plus(b);
 		case BINARY_OPS.minus:
+			if( a.toPrecision(Decimal.precision-1) ==
+				b.toPrecision(Decimal.precision-1)
+			){
+				return ZERO;
+			}
 			return a.minus(b);
 		case BINARY_OPS.times:
 			return a.times(b);
