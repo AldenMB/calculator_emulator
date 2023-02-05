@@ -21,7 +21,7 @@ let conflicts = 0;
 let successes = 0;
 let skipped = 0;
 const maxConflicts = 10;
-const exclusions = ['ab/c', 'Sigma+', '(', ')'];
+const exclusions = ['ab/c', 'Sigma+'];
 
 console.log('searching...');
 for await (const [sequence, screen] of iterDatabase()){
