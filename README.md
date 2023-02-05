@@ -15,7 +15,7 @@ This project is far from done! additional tasks include:
 
 ## explain bugs
 
- - The real calculator seems to have a bug where, if parentheses are opened twice then closed once, the parenthesis indicator does not engage. You can see this by typing `4 + ( ( ) COS`, followed by variously `=` or `)`. If you press `)`, then the screen shows 1 as it has closed the second parenthesis. On the other hand, if you press `=`, it shows 5 as it evaluates the whole expression. However, immediately following the first `)`, the screen no longer shows the parentehsis indicator. Why is this? What could be happening? Without a model for the behavior, it is unclear how I can implement it.
+ - The real calculator seems to have a bug where, if parentheses are opened twice then closed once, the parenthesis indicator does not engage. You can see this by typing `4 + ( ( ) COS`, followed by variously `=` or `)`. If you press `)`, then the screen shows 1 as it has closed the second parenthesis. On the other hand, if you press `=`, it shows 5 as it evaluates the whole expression. However, immediately following the first `)`, the screen no longer shows the parentehsis indicator. Why is this? What could be happening? Without a model for the behavior, it is unclear how I can implement it. It seems that the real behavior of the calculator actually does keep both parentheses, even though one is omitted from the display.
 
 ## making it pretty
 

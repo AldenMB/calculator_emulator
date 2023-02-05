@@ -1003,13 +1003,6 @@ function TI30Xa_state(changes){
 	
 	function open_paren(){
 		const stack = [...ensure_empty_entry().stack];
-		if(stack.slice(-1)[0] === '('){
-			stack.pop();
-		}
-		if(stack.slice(-2)[0] === '(' && ZERO.equals(stack.slice(-1)[0])){
-			stack.pop();
-			stack.pop();
-		}
 		stack.push('(', ZERO);
 		return ensure_empty_entry().child({stack});
 	}

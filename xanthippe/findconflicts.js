@@ -17,6 +17,10 @@ function isRoundingError(screen1, screen2){
 	return mantissa1.slice(0, 8) === mantissa2.slice(0, 8);
 }
 
+function ignore_paren_indicator(screen1, screen2){
+	return screen1.slice(0, 73) === screen2.slice(0, 73) && screen1.slice(75) === screen2.slice(75);
+}
+
 let conflicts = 0;
 let successes = 0;
 let skipped = 0;
@@ -40,7 +44,7 @@ for await (const [sequence, screen] of iterDatabase()){
 		const computed = calc.now().to_text_display();
 		if(computed === screen){
 			successes++;
-		} else if (isRoundingError(computed, screen)) {
+		} else if (isRoundingError(computed, screen) || ignore_paren_indicator(computed, screen)) {
 			++skipped;
 		} else {
 			conflicts++;
