@@ -1002,11 +1002,11 @@ function TI30Xa_state(changes){
 	}
 	
 	function open_paren(){
-		const stack = [...state.ensure_empty_entry().stack];
+		const stack = [...ensure_empty_entry().stack];
 		if(stack.slice(-1)[0] === '('){
 			stack.pop();
 		}
-		if(stack.slice(-2)[0] === '(' && stack.slice(-1)[0] === ZERO){
+		if(stack.slice(-2)[0] === '(' && ZERO.equals(stack.slice(-1)[0])){
 			stack.pop();
 			stack.pop();
 		}
@@ -1020,10 +1020,10 @@ function TI30Xa_state(changes){
 		}
 		const next_state = ensure_empty_entry();
 		const stack = [...next_state.stack];
-		const lastparen = stack.lastIndexOf('(');
-		const new_top_num = child({stack:stack.slice(lastparen+1)}).equals().top_number();
+		const lastparen = stack.lastIndexOf('(');		
+		const substate = next_state.child({stack:stack.slice(lastparen+1)}).equals();
 		
-		return next_state.child({stack:stack.slice(0, lastparen)}).push_number(new_top_num);
+		return substate.child({stack:stack.slice(0, lastparen)}).push_number(substate.top_number());
 	}
 	
 	function catch_errors(){
