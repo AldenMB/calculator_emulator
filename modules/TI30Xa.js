@@ -1021,18 +1021,9 @@ function TI30Xa_state(changes){
 		const next_state = ensure_empty_entry();
 		const stack = [...next_state.stack];
 		const lastparen = stack.lastIndexOf('(');
-		const stacktail = stack.slice(lastparen+1);
-		const stackbase = stack.slice(0, lastparen);
-		if(stackbase.slice(-1)[0] instanceof Decimal){
-			stackbase.pop();
-		}
-		stackbase.push(
-			child({stack:stacktail})
-			.equals()
-			.top_number()
-		);
+		const new_top_num = child({stack:stack.slice(lastparen+1)}).equals().top_number();
 		
-		return next_state.child({stack:stackbase});
+		return next_state.child({stack:stack.slice(0, lastparen)}).push_number(new_top_num);
 	}
 	
 	function catch_errors(){
