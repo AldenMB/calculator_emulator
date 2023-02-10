@@ -803,7 +803,9 @@ function TI30Xa_state(changes){
 				next_state = enter_fraction();
 				break;
 			//case "d/c":
-			//case "F<>D":
+			case "F<>D":
+				next_state = convert_fraction_decimal();
+				break;
 			
 			default:
 				throw {
@@ -1105,11 +1107,14 @@ function TI30Xa_state(changes){
 	
 	function convert_fraction_decimal(){
 		const newstate = state.ensure_empty_entry();
+		if(!Decimal.isDecimal(newstate.stack.slice(-1)[0])){
+			return state;
+		}
 		const num = newstate.top_number();
 		if(num.isFraction?.()){
 			return newstate.push_number(num.toDecimal());
 		}
-		return newstate.pushNumber(Fraction().fromDecimal(num));
+		return newstate.push_number(Fraction.fromDecimal(num));
 	}
 }
 

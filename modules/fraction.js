@@ -152,6 +152,13 @@ Fraction.fromString = function fromString(str){
 
 Fraction.fromDecimal = function fromDecimal(x){
 	const [n, d] = x.toFraction(MAX_DENOMINATOR);
+	if(n === 0){
+		return x;
+	}
+	const relative_error = x.times(d).dividedBy(n).abs();
+	if(relative_error.greaterThan(1+1e-8) || relative_error.lessThan(1-1e-9)){
+		return x;
+	}
 	return Fraction(n, d);
 };
 
