@@ -17,22 +17,35 @@ function isRoundingError(screen1, screen2){
 	}
 	const mantissa1 = screen1.slice(79, 101).replaceAll(' ', '');
 	const mantissa2 = screen2.slice(79, 101).replaceAll(' ', '');
-	return mantissa1.slice(0, 8) === mantissa2.slice(0, 8);
+	return mantissa1.slice(0, 6) === mantissa2.slice(0, 6);
 }
 
 function ignore_paren_indicator(screen1, screen2){
 	return screen1.slice(0, 73) === screen2.slice(0, 73) && screen1.slice(75) === screen2.slice(75);
 }
 
+function arrayEqual(a, b){
+	return a.length === b.length && a.every((x, i) => x === b[i]);
+}
+
 function addToCache(sequence, screen){
-	if( !cache.some( testcase => (
-		testcase[0].length === sequence.length && 
-		testcase[0].every((x, i) => x === sequence[i])
-		))
+	if(!cache.some( ([seq, scrn]) => (arrayEqual(seq, sequence)))
 	){
 		cache.push([sequence, screen]);
 		fs.writeFileSync('./cache.json', JSON.stringify(cache, null, '  '));
 	}
+}
+
+function updateCache(sequence, screen){
+	cache.forEach(x => {
+		if (arrayEqual(x[0], sequence)){
+			x[1] = screen;
+		}
+	})
+}
+
+function startsWithConflict(sequence){
+	return conflicts.some(seq => (seq.every((x, i) => x === sequence[i])));
 }
 
 async function* testCases(){
@@ -42,7 +55,7 @@ async function* testCases(){
 	yield* iterDatabase();
 }
 
-let conflicts = 0;
+const conflicts = [];
 let successes = 0;
 let skipped = 0;
 const maxConflicts = 10;
@@ -50,9 +63,10 @@ const exclusions = ['Sigma+', '(', ')'];
 
 console.log('searching...');
 for await (const [sequence, screen] of testCases()){
-	process.stdout.write(`${conflicts}/${successes}/${skipped}`);
-	if(sequence.some(x => exclusions.includes(x))){
-		skipped += 1;
+	process.stdout.write(`${conflicts.length}/${successes}/${skipped}`);
+	updateCache(sequence, screen);
+	if(sequence.some(x => exclusions.includes(x)) || startsWithConflict(sequence)){
+		++skipped;
 		process.stdout.write('\r');
 		continue;
 	}
@@ -65,10 +79,10 @@ for await (const [sequence, screen] of testCases()){
 		const computed = calc.now().to_text_display();
 		if(computed === screen){
 			successes++;
-		} else if (isRoundingError(computed, screen) || ignore_paren_indicator(computed, screen)) {
+		} else if (isRoundingError(computed, screen) ||	ignore_paren_indicator(computed, screen)) {
 			++skipped;
 		} else {
-			conflicts++;
+			conflicts.push(sequence);
 			console.log('\n');
 			console.log(sequence.join(' >> '));
 			console.log('Computed:');
@@ -79,7 +93,7 @@ for await (const [sequence, screen] of testCases()){
 			
 			addToCache(sequence, screen);
 		}
-		if (conflicts > maxConflicts){
+		if (conflicts.length > maxConflicts){
 			break;
 		}
 	} catch(error) {
