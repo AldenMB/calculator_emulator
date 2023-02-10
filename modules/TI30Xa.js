@@ -470,7 +470,7 @@ function TI30Xa_state(changes){
 			}
 			return child({entry: a + '_' + b + '/'});
 		}
-		if(entry.length > 6){
+		if(entry.replace('-', '').length > 6){
 			return state;
 		}
 		return child({entry: entry + '/'});
