@@ -489,6 +489,9 @@ function TI30Xa_state(changes){
 		if (entry === '-0'){
 			entry = '0';
 		}
+		if(entry.includes('_') && !entry.includes('/')){
+			entry = entry.replace('_', '/');
+		}
 		return state.child({entry});
 	}
 	
@@ -1022,6 +1025,9 @@ function TI30Xa_state(changes){
 	}
 	
 	function drg(){
+		if(state.error){
+			return state;
+		}
 		const modes = Object.values(ANGLE_MODES);
 		const anglemode = modes[
 			(modes.indexOf(state.anglemode)+1) % modes.length

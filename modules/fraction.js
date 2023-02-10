@@ -45,6 +45,7 @@ function Fraction(num=0, den=1){
 			times,
 			dividedBy,
 			rightApplyOp,
+			negated,
 		}
 	));
 	
@@ -123,6 +124,10 @@ function Fraction(num=0, den=1){
 			case '/':
 				return Fraction(den, num).times(y);
 		}
+	}
+	
+	function negated(){
+		return Fraction(-num, den);
 	}
 };
 
