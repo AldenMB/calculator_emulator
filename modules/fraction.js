@@ -24,7 +24,7 @@ function Fraction(num=0, den=1){
 	if(den === 0){
 		return new Decimal(NaN);
 	}
-	if(den === 1 || den > MAX_DENOMINATOR){
+	if(den === 1 || den > MAX_DENOMINATOR || Math.abs(num) > den*999999){
 		return toDecimal()
 	}
 	if(den < 0){
