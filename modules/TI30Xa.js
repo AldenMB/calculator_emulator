@@ -568,7 +568,7 @@ function TI30Xa_state(changes){
 			return child({on:true, stack:[ZERO], error:false});
 		} else {
 			return child({entry:''}).push_number(ZERO);
-		}			
+		}
 	}
 	
 	function off(){
