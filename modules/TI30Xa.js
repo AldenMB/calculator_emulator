@@ -213,6 +213,12 @@ function apply_binary_op(a, op, b){
 			if (a.isZero() && b.isZero()){
 				return NAN;
 			}
+			if (a.isNegative() &&
+				ONE.dividedBy(b).isInteger() &&
+				ONE.dividedBy(b).minus(1).dividedBy(2).isInteger()
+			){
+				return a.negated().toPower(b).negated();
+			}
 			return a.toPower(b);
 		case BINARY_OPS.root:
 			if (a.isZero() && b.isZero()){
