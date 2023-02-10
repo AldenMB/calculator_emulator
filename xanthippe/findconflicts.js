@@ -31,14 +31,14 @@ function addToCache(sequence, screen){
 		))
 	){
 		cache.push([sequence, screen]);
-		fs.writeFileSync('./cache.json', JSON.stringify(cache));
+		fs.writeFileSync('./cache.json', JSON.stringify(cache, null, '  '));
 	}
 }
 
 async function* testCases(){
 	console.log('Working through cache...');
 	yield* cache;
-	console.log('Loading new cases...');
+	console.log('\nLoading new cases...');
 	yield* iterDatabase();
 }
 
