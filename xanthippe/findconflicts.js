@@ -46,7 +46,7 @@ let conflicts = 0;
 let successes = 0;
 let skipped = 0;
 const maxConflicts = 10;
-const exclusions = ['Sigma+'];
+const exclusions = ['Sigma+', '(', ')'];
 
 console.log('searching...');
 for await (const [sequence, screen] of testCases()){
