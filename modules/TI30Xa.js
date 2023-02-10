@@ -2,6 +2,7 @@
 
 import {BUTTON_LABELS, SECOND_LABELS} from "./button_parse.js";
 import {Decimal} from "./decimal.mjs";
+import {Fraction} from "./fraction.js";
 
 Decimal.set({
 	precision: 14, 
@@ -12,6 +13,8 @@ Decimal.set({
 	toExpPos: 10,
 	modulo: Decimal.ROUND_FLOOR,
 });
+
+Fraction.setDecimal(Decimal);
 
 function boxify(str, length){
 	const header = '┌' + '─'.repeat(length) + '┐\n│';
@@ -189,6 +192,9 @@ function hyperbolic_map(label){
 }
 
 function apply_binary_op(a, op, b){
+	if(a.isInteger() && b.isFraction?.() && '+-*/'.includes(op)){
+		return b.rightApplyOp(op, a);
+	}
 	switch(op){
 		case BINARY_OPS.plus:
 			return a.plus(b);
@@ -364,11 +370,13 @@ function TI30Xa_state(changes){
 		}
 		let number = top_number();
 		
-		if(!(number instanceof Decimal)){
+		if(!Decimal.isDecimal(number)){
 			console.log('no Decimal on the stack: ',JSON.stringify(state.stack));
 			return 'BADDECIMAL';
 		}
-		
+		if(number.isFraction?.()){
+			return number.toStringMixed();
+		}
 		
 		let s = number.toSignificantDigits(10).toString();
 		if(s.slice(0,2) === '0.' || s.slice(0,3) === '-0.'){
@@ -399,7 +407,10 @@ function TI30Xa_state(changes){
 		if(entry.includes('e')){
 			return enter_exponent(digit);
 		}
-		if(entry.split('e')[0].replace('.','').replace('-','').length >= 10){
+		if(entry.replace('.','').replace('-','').length >= 10){
+			return state;
+		}
+		if(entry.slice(-4)[0] === '/'){
 			return state;
 		}
 		entry += digit;
@@ -428,7 +439,7 @@ function TI30Xa_state(changes){
 	
 	function begin_exponent(){
 		let {entry} = state;
-		if(entry.includes('e') || entry === ''){
+		if(entry.includes('e') || entry === '' || entry.includes('/')){
 			return state;
 		}
 		entry = entry + 'e00';
@@ -437,7 +448,7 @@ function TI30Xa_state(changes){
 	
 	function enter_decimal(){
 		let {entry} = state;
-		if(entry.includes('e') || entry.includes('.')){
+		if(entry.includes('e') || entry.includes('.') || entry.includes('/')){
 			return state;
 		}
 		if(entry === ''){
@@ -445,6 +456,24 @@ function TI30Xa_state(changes){
 		}
 		entry = entry + '.';
 		return state.child({entry});
+	}
+	
+	function enter_fraction(){
+		const {entry} = state;
+		if(entry === '' || entry.includes('.') || entry.includes('e') || entry.includes('_') || entry === '0' || entry === '-0'){
+			return state;
+		}
+		if(entry.includes('/')){
+			const [a, b] = entry.split('/');
+			if(a.length > 3 || b.length === 0){
+				return state;
+			}
+			return child({entry: a + '_' + b + '/'});
+		}
+		if(entry.length > 6){
+			return state;
+		}
+		return child({entry: entry + '/'});
 	}
 	
 	function backspace(){
@@ -502,9 +531,13 @@ function TI30Xa_state(changes){
 	
 	function ensure_empty_entry(){
 		const {entry} = state;
-		if(entry){
-			const x = new Decimal(entry);
-			return push_number(x).child({entry:''});
+		if(entry){			
+			const x = (
+				entry.includes('/') ?
+				Fraction.fromString(entry) :
+				new Decimal(entry)
+			);
+			return push_number(x).child({entry:''}).catch_errors();
 		}
 		return state;
 	}
@@ -512,7 +545,7 @@ function TI30Xa_state(changes){
 	function top_number(){
 		return (state
 			.stack
-			.filter(x => (x instanceof Decimal))
+			.filter(Decimal.isDecimal)
 			.slice(-1)[0]
 		);
 	}
@@ -520,7 +553,7 @@ function TI30Xa_state(changes){
 	function push_number(number){
 		const stack = [...state.stack];
 		const top = stack.slice(-1)[0];
-		if(top instanceof Decimal){
+		if(Decimal.isDecimal(top)){
 			stack.pop();
 		}
 		stack.push(number);
@@ -757,7 +790,9 @@ function TI30Xa_state(changes){
 			
 			// fractions
 			
-			//case "ab/c":
+			case "ab/c":
+				next_state = enter_fraction();
+				break;
 			//case "d/c":
 			//case "F<>D":
 			
@@ -827,8 +862,8 @@ function TI30Xa_state(changes){
 		if(state.stack.length >= 4){
 			const [a, op1, b, op2] = state.stack.slice(-4);
 			if(
-				(a instanceof Decimal) &&
-				(b instanceof Decimal) &&
+				Decimal.isDecimal(a) &&
+				Decimal.isDecimal(b) &&
 				is_binary_op(op1) &&
 				is_binary_op(op2)
 			){
@@ -857,7 +892,7 @@ function TI30Xa_state(changes){
 	function percent(){
 		let newstate = ensure_empty_entry();
 		let x = newstate.top_number().dividedBy(100);
-		if(!(newstate.stack.slice(-1)[0] instanceof Decimal)){
+		if(!Decimal.isDecimal(newstate.stack.slice(-1)[0])){
 			newstate = newstate.push_number(ZERO);
 			// doesn't matter what number we add, it will get overwritten
 			// it just makes it easier to keep track of indices
@@ -1021,7 +1056,7 @@ function TI30Xa_state(changes){
 	
 	function catch_errors(){
 		let stack = [...state.stack];
-		const infinite = stack.filter(x => x instanceof Decimal).some(x => !x.isFinite());
+		const infinite = stack.filter(Decimal.isDecimal).some(x => !x.isFinite());
 		const error = (state.error || infinite);
 		if(error){
 			stack = [ZERO];
@@ -1035,7 +1070,6 @@ function TI30Xa_state(changes){
 		}
 		return x;
 	}
-	
 	
 	function apply_memory_function(digit){
 		const place = Number(digit) - 1;
@@ -1055,6 +1089,15 @@ function TI30Xa_state(changes){
 				memory[place] = memory[place].plus(top_number());
 				return child({memorymode, memory});
 		}
+	}
+	
+	function convert_fraction_decimal(){
+		const newstate = state.ensure_empty_entry();
+		const num = newstate.top_number();
+		if(num.isFraction?.()){
+			return newstate.push_number(num.toDecimal());
+		}
+		return newstate.pushNumber(Fraction().fromDecimal(num));
 	}
 }
 
