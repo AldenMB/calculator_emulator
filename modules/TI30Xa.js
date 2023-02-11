@@ -276,6 +276,7 @@ const DEFAULT_STATE = Object.freeze({
 	fixprecision: -1,
 	statregister: false, // placeholder for printing
 	on: true,
+	improperfraction: false,
 });
 
 function TI30Xa_state(changes){
@@ -381,7 +382,11 @@ function TI30Xa_state(changes){
 			return 'BADDECIMAL';
 		}
 		if(number.isFraction?.()){
-			return number.toStringMixed();
+			if(state.improperfraction){
+				return number.toStringImproper();
+			} else {
+				return number.toStringMixed();
+			}
 		}
 		
 		let s = number.toSignificantDigits(10).toString();
@@ -802,7 +807,9 @@ function TI30Xa_state(changes){
 			case "ab/c":
 				next_state = enter_fraction();
 				break;
-			//case "d/c":
+			case "d/c":
+				next_state = toggle_improper();
+				break;
 			case "F<>D":
 				next_state = convert_fraction_decimal();
 				break;
@@ -821,6 +828,9 @@ function TI30Xa_state(changes){
 			if(!Object.values(MEMORY_KEYS).includes(label)){
 				next_state = next_state.child({memorymode: ''});
 			}
+			if(label !== 'd/c'){
+				next_state = next_state.child({improperfraction: false});
+			}
 		}
 		return next_state;
 	}
@@ -835,6 +845,19 @@ function TI30Xa_state(changes){
 	function toggle_hyp(){
 		const hyperbolic = !state.hyperbolic;
 		return child({hyperbolic});
+	}
+	
+	function toggle_improper(){
+		const improperfraction = (
+			state.entry.includes('/') && !state.entry.includes('_') ?
+			false :
+			!state.improperfraction
+		);
+		const nextstate = state.ensure_empty_entry();
+		return (nextstate
+			.push_number(nextstate.top_number())
+			.child({improperfraction})
+		);
 	}
 	
 	function pop_binary_op(){
