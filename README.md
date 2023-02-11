@@ -28,7 +28,6 @@ This project is far from done! additional tasks include:
  - constant key
  - statistical register
  - polar/cartesian conversion, and angle formats
- - fractions
 
 ## guaranteeing reliability
 
