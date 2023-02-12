@@ -1130,8 +1130,8 @@ function TI30Xa_state(changes){
 	
 	function convert_fraction_decimal(){
 		const newstate = state.ensure_empty_entry();
-		if(!Decimal.isDecimal(newstate.stack.slice(-1)[0])){
-			return state;
+		if(!Decimal.isDecimal(state.stack.slice(-1)[0])){
+			return newstate;
 		}
 		const num = newstate.top_number();
 		if(num.isFraction?.()){
