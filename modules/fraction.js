@@ -43,6 +43,7 @@ function Fraction(num=0, den=1){
 			toDecimal,
 			toStringImproper,
 			toStringMixed,
+			toJSON,
 			isFraction,
 			plus,
 			minus,
@@ -71,6 +72,10 @@ function Fraction(num=0, den=1){
 		}
 		const part = Math.abs(num) % den;
 		return `${neg}${whole}_${part}/${den}`;
+	}
+	
+	function toJSON(){
+		return toStringImproper();
 	}
 	
 	function isFraction(){
