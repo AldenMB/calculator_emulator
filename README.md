@@ -10,6 +10,12 @@ This page is dedicated to my favorite handheld calculator, the TI-30Xa. I made i
  - To see if I really understand how my calculator works. I have already learned a few things, such as the limited order-of-operations the 30Xa has. Also, this may seem obvious, but I also realized for the first time that the display segments are at a five degree angle. Here is another intersting fact: if there are no open parentheses, the close-parenthesis button does the same thing as the equals key. Another amusing fact: while promotional materials display the more common 3-segment "7", the calculator itself shows the less-common 4-segment version.
  - So I can demonstrate using this calculator in class without the glare which comes from using the document camera, and students can follow along on their smartphones if they left their calculator at home. In particular, this could fill a similar role to TI-SmartView, which as of right now is not available for the 30Xa.
 
+# Copyright
+
+All this code is my original creation, with the exception of the Decimal module. None of the code is copied from any previously existing calculator, and I don't believe it is currently protected by any patents either. It is available to you under the GPL-3.0 licence, a copy of which is included in this repository. I also welcome any contributions. If you are using this and you require a more permissive licence then I may be willing to make an exception on a case-by-case basis.
+
+Of course, `Texas Instruments` and their logo are trademarks of Texas instruments Incorporated. The image of the calculator is their copyrighted promotional picture. It is being used here to ensure a uniform experience for students who have the physical calculator and are also using the emulator. I don't imagine TI would have any problem with that. If any representative of Texas Instruments is reading this and would like me to remove any TI copyrighted materials, do get in touch.
+
 # issues
 This project is far from done! additional tasks include:
 
