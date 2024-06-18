@@ -58,7 +58,7 @@ async function* testCases(){
 const conflicts = [];
 let successes = 0;
 let skipped = 0;
-const maxConflicts = 20;
+const maxConflicts = 50;
 const exclusions = ['Sigma+', '(', ')'];
 
 console.log('searching...');
