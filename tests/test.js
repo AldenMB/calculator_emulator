@@ -463,6 +463,22 @@ const TESTS = Object.freeze([
 	name: "engineering leaves a hundreds place",
 	sequence: "ENG 1 2 3 4 5 6 =",
 	check: display_is("123.456e+03"),
+},{
+	name: "fix leaves two places after decimal",
+	sequence: "FIX 2",
+	check: display_is("0.00"),
+},{
+	name: "fix rounds",
+	sequence: "FIX 2 2 / 3",
+	check: display_is("0.67"),
+},{
+	name: "fix rounds to integer",
+	sequence: "FIX 0 2 / 3",
+	check: display_is("1."),
+},{
+	name: "fix turns off",
+	sequence: "FIX 5 3 1/x FIX .",
+	check: display_is("0.333333333"),
 }
 ]);
 

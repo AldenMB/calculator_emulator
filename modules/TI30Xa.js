@@ -265,6 +265,7 @@ const DEFAULT_STATE = Object.freeze({
 	anglemode: ANGLE_MODES.degrees,
 	formatmode: FORMAT_MODES.floating,
 	fixprecision: -1,
+	fixing: false,
 	statregister: false, // placeholder for printing
 	on: true,
 	improperfraction: false,
@@ -448,6 +449,9 @@ function TI30Xa_state(changes){
 		if (state.memorymode!=='' && ['1', '2', '3'].includes(digit)){
 			return apply_memory_function(digit);
 		}
+		if(state.fixing){
+			return apply_fix_precision(digit);
+		}
 		let {entry} = state;
 		if(entry.includes('e')){
 			return enter_exponent(digit);
@@ -492,6 +496,9 @@ function TI30Xa_state(changes){
 	}
 	
 	function enter_decimal(){
+		if(state.fixing){
+			return apply_fix_precision('.');
+		}
 		let {entry} = state;
 		if(entry.includes('e') || entry.includes('.') || entry.includes('/')){
 			return state;
@@ -654,7 +661,9 @@ function TI30Xa_state(changes){
 			case "FLO":
 				next_state = child({formatmode:FORMAT_MODES.floating});
 				break;
-			//case "FIX":
+			case "FIX":
+				next_state = child({fixing:true});
+				break;
 			//case "K":
 			case "ON/C":
 				next_state = on();
@@ -1166,6 +1175,13 @@ function TI30Xa_state(changes){
 				memory[place] = memory[place].plus(top_number());
 				return child({memorymode, memory});
 		}
+	}
+	
+	function apply_fix_precision(digit){
+		if(digit === '.'){
+			return child({fixprecision:-1, fixing:false});
+		}
+		return child({fixprecision:Number(digit), fixing:false});
 	}
 	
 	function convert_fraction_decimal(){
