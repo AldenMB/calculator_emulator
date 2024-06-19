@@ -57,15 +57,6 @@ function array_equal(arr1, arr2){
 	return arr1.every((elt, i) => elt === arr2[i]);
 }
 
-function clear_trailing_zeros(str){
-	if (str.includes('.')){
-		while(str.slice(-1) === '0'){
-			str = str.slice(0, -1);
-		}
-	}
-	return str;
-}
-
 function factorial(x){
 	if(x.isZero()){
 		return ONE;
@@ -389,10 +380,53 @@ function TI30Xa_state(changes){
 			}
 		}
 		
-		let s = number.toSignificantDigits(10).toString();
-		if(s.slice(0,2) === '0.' || s.slice(0,3) === '-0.'){
-			s = clear_trailing_zeros(number.toFixed(9));
+		let s = '';
+		switch(state.formatmode){
+			case FORMAT_MODES.floating:
+				s = number.toSignificantDigits(10).toString();
+				if(s.slice(0,2) === '0.' || s.slice(0,3) === '-0.'){
+					s = number.toFixed(9);
+					if(s.includes('.')){
+						while(s.slice(-1) === '0'){
+							s = s.slice(0, -1);
+						}
+					}
+				}
+				break;
+			case FORMAT_MODES.engineering:
+				let exponent = new Decimal(number.e)
+				let shift = exponent.mod(3)
+				let new_exponent = new Decimal(10).pow(exponent-shift);
+				let mantissa = number
+					.div(new_exponent)
+					.toSignificantDigits(10)
+					.toString();
+				s = mantissa + 'e' + (new_exponent.toExponential(0).split('e')[1]);
+				break;
+			case FORMAT_MODES.scientific:
+				s = number.toExponential(number.sd() < 9 ? number.sd()-1 : 9);
+				if(s[0] === '0'){
+					s = '0.' + s.slice(1);
+				}
+				let [m, e] = s.split('e');
+				if(number.sd() !== 11){
+					while(m.slice(-1) === '0'){
+						m = m.slice(0, -1);
+					}
+				}
+				s = m + 'e' + e;
+				break;
 		}
+		
+		//exponent should always have two digits
+		if(s.includes('e')){
+			let [m, e] = s.split('e');
+			if(e.length<3){
+				s = m + 'e' + e[0] + '0' + e[1];
+			}
+		}
+		
+		//decimal.js does not always include a trailing '.', but TI30Xa does
 		if(!s.includes('.')){
 			let [m, e] = s.split('e');
 			e = e ? 'e' + e : '';
@@ -611,9 +645,15 @@ function TI30Xa_state(changes){
 			case "HYP":
 				next_state = toggle_hyp();
 				break;
-			//case "SCI":
-			//case "ENG":
-			//case "FLO":
+			case "SCI":
+				next_state = child({formatmode:FORMAT_MODES.scientific});
+				break;
+			case "ENG":
+				next_state = child({formatmode:FORMAT_MODES.engineering});
+				break;
+			case "FLO":
+				next_state = child({formatmode:FORMAT_MODES.floating});
+				break;
 			//case "FIX":
 			//case "K":
 			case "ON/C":

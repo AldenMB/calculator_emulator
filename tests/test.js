@@ -427,6 +427,42 @@ const TESTS = Object.freeze([
 	name: "trig functions accurate to ten places",
 	sequence: "8 9 . 9 9 9 9 9 9 9 9 TAN",
 	check: display_is("5729577951."),
+},{
+	name: "scientific notation always displays exponent",
+	sequence: "SCI",
+	check: display_is("0.e+00"),
+},{
+	name: "engineering notation always displays exponent",
+	sequence: "ENG",
+	check: display_is("0.e+00"),
+},{
+	name: "scientific notation drops trailing zeros",
+	sequence: "SCI 1 2 3 =",
+	check: display_is("1.23e+02"),
+},{
+	name: "scientific notation shows full range of digits",
+	sequence: "SCI 1 EE 9 + 1 =",
+	check: display_is("1.000000001e+09"),
+},{
+	name: "scientific underflows with trailing zeros",
+	sequence: "SCI 1 EE 9 + . 1 =",
+	check: display_is("1.000000000e+09"),
+},{
+	name: "scientific underflows fully",
+	sequence: "SCI 1 EE 9 + . 0 1 =",
+	check: display_is("1.e+09"),
+},{
+	name: "engineering behaves like scientific when exponent is a multiple of 3",
+	sequence: "ENG 1 2 3 4 =",
+	check: display_is("1.234e+03"),
+},{
+	name: "engineering leaves a tens place",
+	sequence: "ENG 1 2 3 4 5 =",
+	check: display_is("12.345e+03"),
+},{
+	name: "engineering leaves a hundreds place",
+	sequence: "ENG 1 2 3 4 5 6 =",
+	check: display_is("123.456e+03"),
 }
 ]);
 
