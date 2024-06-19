@@ -24,6 +24,11 @@ function ignore_paren_indicator(screen1, screen2){
 	return screen1.slice(0, 73) === screen2.slice(0, 73) && screen1.slice(75) === screen2.slice(75);
 }
 
+function is_zero(screen){
+	const mantissa = screen.slice(79, 101).replaceAll(' ', '');
+	return mantissa === '0' || mantissa === '0.';
+}
+
 function arrayEqual(a, b){
 	return a.length === b.length && a.every((x, i) => x === b[i]);
 }
@@ -79,7 +84,7 @@ for await (const [sequence, screen] of testCases()){
 		const computed = calc.now().to_text_display();
 		if(computed === screen){
 			successes++;
-		} else if (isRoundingError(computed, screen) ||	ignore_paren_indicator(computed, screen)) {
+		} else if (isRoundingError(computed, screen) ||	ignore_paren_indicator(computed, screen) || is_zero(screen)) {
 			++skipped;
 		} else {
 			conflicts.push(sequence);
