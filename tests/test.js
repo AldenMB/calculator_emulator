@@ -479,6 +479,14 @@ const TESTS = Object.freeze([
 	name: "fix turns off",
 	sequence: "FIX 5 3 1/x FIX .",
 	check: display_is("0.333333333"),
+},{
+	name: "off resets display mode",
+	sequence: "SCI OFF ON/C",
+	check: display_is("0."),
+},{
+	name: "off resets fix",
+	sequence: "FIX 5 OFF ON/C",
+	check: display_is("0."),
 }
 ]);
 
