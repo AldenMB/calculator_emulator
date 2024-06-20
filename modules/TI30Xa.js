@@ -625,7 +625,13 @@ function TI30Xa_state(changes){
 	
 	function off(){
 		//TODO: clear statistical register
-		return child({on:false, entry:'', anglemode:ANGLE_MODES.degrees});
+		return child({
+			on:false,
+			entry:'',
+			anglemode:ANGLE_MODES.degrees,
+			formatmode: FORMAT_MODES.floating,
+			fixprecision: -1,
+			});
 	}
 	
 	////////////////////////////////
