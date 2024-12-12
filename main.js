@@ -67,14 +67,7 @@ window.onload = function() {
 	};
 	show_history();
 	
-	keyboard.onclick = function(e){
-		const rect = keyboard.getBoundingClientRect();
-		const x = (e.clientX - rect.left)/rect.width;
-		const y = (e.clientY - rect.top)/rect.height;
-		const button_label = button_at({x, y});
-		if(button_label === ''){
-			return;
-		}
+	function press(button_label){
 		try {
 			calculator.press(button_label);
 			show_history();
@@ -87,10 +80,65 @@ window.onload = function() {
 		}
 	};
 	
+	keyboard.onclick = function(e){
+		const rect = keyboard.getBoundingClientRect();
+		const x = (e.clientX - rect.left)/rect.width;
+		const y = (e.clientY - rect.top)/rect.height;
+		const button_label = button_at({x, y});
+		if(button_label === ''){
+			return;
+		}
+		press(button_label);
+	};
+	
 	const undo = document.getElementById("undo");
 	undo.onclick = function(){
 		calculator.undo();
 		show_history();
 	};
 	
+	addEventListener("keydown", (event) => {
+		if(event.key === '/'){
+			// disable search shortcut in Firefox
+			event.preventDefault();
+		}
+		switch(event.key){
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+			case '.':
+			case '(':
+			case ')':
+			case '%':
+			case '+':
+			case '-':
+			case '/':
+			case '*':
+				press(event.key);
+				break;
+			case '=':
+			case 'Enter':
+				press('=');
+				break;
+			case 'E':
+				press('EE');
+				break;
+			case 'Backspace':
+				press('<-');
+				break;
+			case '!':
+				press('x!');
+				break;
+			case '^':
+				press('y^x');
+				break;
+		}
+	});
 }
