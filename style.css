@@ -11,6 +11,10 @@ body {
 	padding: 20px;
 }
 
+#calculator_bay {
+	display: flex;
+}
+
 #calculator_picture {
 	-webkit-user-select: none;
 	-webkit-touch-callout: none;
@@ -19,9 +23,18 @@ body {
 	user-select: none;
 	display: block;
 	margin: auto;
+	flex-shrink: 0;
+}
+
+#history_display{
+	flex: 1;
 }
 
 #url {
 	text-align: center;
 	font-weight: bold;
+}
+
+#history_checkbox {
+	text-align: center;
 }

@@ -28,8 +28,6 @@ window.onload = function() {
 	add_hover_coords(keyboard, coord_display);
 	
 	const calculator = TI30Xa();
-	const calc_history = document.getElementById("calc_history");
-	const calc_state = document.getElementById("calc_state");
 	//const log = Log("https://home.aldenbradford.com:58086");
 	
 	function get_segments(digit, exponent){
@@ -60,12 +58,27 @@ window.onload = function() {
 	const display = make_display({indicators, mantissa_list, exponent_list});
 	
 	function show_history(){
-		calc_history.innerHTML = calculator.to_html();
-		calc_state.innerHTML = calculator.current_html();
 		display.update(calculator.now());
 		//log.include(calculator);
+		document.getElementById("calc_state").innerHTML = calculator.current_html();
+		document.getElementById("history_buttons").replaceChildren(
+			...calculator.command_log.map(function(x, i){
+				let b = document.createElement('button');
+				b.innerText = x;
+				b.onclick = function(){
+					calculator.undo(i);
+					show_history();
+				}
+				return b;
+			})
+		);
 	};
 	show_history();
+	
+	document.getElementById("enable_history").addEventListener("click", event => {
+		document.getElementById("history_display").hidden = !event.target.checked;
+	});
+	document.getElementById("history_display").hidden = !document.getElementById("enable_history").checked;
 	
 	function press(button_label){
 		try {

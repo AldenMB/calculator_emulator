@@ -1205,7 +1205,7 @@ function TI30Xa_state(changes){
 
 function TI30Xa(){
 	const history = [TI30Xa_state()];
-	const command_log = [];
+	const command_log = ['ON/C'];
 	//for debugging purposes:
 	//document.my_history = history;
 	
@@ -1220,10 +1220,17 @@ function TI30Xa(){
 		history.push(now().push_button(keyname));
 	}
 	
-	function undo(){
-		if(history.length > 1){
-			history.pop();
-			command_log.pop();
+	function undo(place=-1){
+		if(place === -1){
+			if(history.length > 1){
+				history.pop();
+				command_log.pop();
+			}
+		} else {
+			while(history.length > place+1){
+				history.pop();
+				command_log.pop();
+			}
 		}
 	}
 	
