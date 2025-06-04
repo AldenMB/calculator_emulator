@@ -10,7 +10,7 @@ This page is dedicated to my favorite handheld calculator, the TI-30Xa. I made i
  - To see if I really understand how my calculator works. I have already learned a few things, such as the limited order-of-operations the 30Xa has. Also, this may seem obvious, but I also realized for the first time that the display segments are at a five degree angle. Here is another intersting fact: if there are no open parentheses, the close-parenthesis button does the same thing as the equals key. Another amusing fact: while promotional materials display the more common 3-segment "7", the calculator itself shows the less-common 4-segment version.
  - So I can demonstrate using this calculator in class without the glare which comes from using the document camera, and students can follow along on their smartphones if they left their calculator at home. In particular, this could fill a similar role to TI-SmartView, which as of right now is not available for the 30Xa.
  
- If you would like to donate money to support this project, I accept donations at <a href="https://www.paypal.com/donate/?business=Q7QVXC4D9G9VU&no_recurring=0&item_name=I+am+developing+free+software+to+help+teachers+and+math+students.+Thank+you+very+much+for+your+support.&currency_code=USD">this Paypal link</a>. So far, two people have donated a total of $20. Thank you!
+ If you would like to donate money to support this project, I accept donations at <a href="https://www.paypal.com/donate/?business=Q7QVXC4D9G9VU&no_recurring=0&item_name=I+am+developing+free+software+to+help+teachers+and+math+students.+Thank+you+very+much+for+your+support.&currency_code=USD">this Paypal link</a>. So far, three people have donated a combined total of $40. Thank you!
 
 # Copyright
 
